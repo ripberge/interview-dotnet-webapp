@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>tixtrack_code_review</RootNamespace>
+    <RootNamespace>TixTrack.WebApiInterview</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
