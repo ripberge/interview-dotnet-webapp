@@ -1,6 +1,16 @@
 using TixTrack.WebApiInterview.Repositories;
+using TixTrack.WebApiInterview.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddSingleton<ApplicationContext>()
+    .AddSingleton<IProductRepository, InMemoryProductRepository>()
+    .AddSingleton<IOrderRepository, InMemoryOrderRepository>();
+
+builder.Services
+    .AddScoped<IOrderService, OrderServiceImpl>()
+    .AddScoped<ISalesReportService, SalesReportServiceImpl>();
 
 builder.Services.AddControllers();
 
@@ -17,10 +27,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-var db = new ApplicationContext();
-ProductRepository.Seed(db);
-OrderRepository.Seed(db);
 
 app.MapControllers();
 app.Run();

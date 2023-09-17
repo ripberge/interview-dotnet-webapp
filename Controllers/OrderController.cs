@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TixTrack.WebApiInterview.Dtos;
 using TixTrack.WebApiInterview.Entities;
-using TixTrack.WebApiInterview.Repositories;
+using TixTrack.WebApiInterview.Services;
 
 namespace TixTrack.WebApiInterview.Controllers;
 
@@ -9,91 +8,19 @@ namespace TixTrack.WebApiInterview.Controllers;
 [Route("[controller]")]
 public class OrderController : ControllerBase
 {
-    public OrderController()
-    {
-    }
+    private IOrderService _orderService { get; set; }
+    
+    public OrderController(IOrderService orderService) => _orderService = orderService;
 
     [HttpGet]
     [Route("")]
-    public IEnumerable<Order> GetAll()
-    {
-        var orders = OrderRepository.GetAllOrders();
-        foreach (var o in orders)
-        {
-            if (o.Product1Id != null)
-            {
-                Product product = ProductRepository.GetProduct(o.Product1Id);
-                o.Product1Name = product.Name;
-                o.Product1Price = product.Price;
-            }
-            if (o.Product2Id != null)
-            {
-                Product product = ProductRepository.GetProduct(o.Product2Id);
-                o.Product2Name = product.Name;
-                o.Product2Price = product.Price;
-            }
-        }
-        return orders;
-    }
+    public IEnumerable<Order> GetAll() => _orderService.GetAll();
 
     [HttpGet]
     [Route("{orderId}")]
-    public Order? GetById(int orderId)
-    {
-        var orders = OrderRepository.GetAllOrders();
-        var order = orders.SingleOrDefault(o => o.Id == orderId);
-        if (order != null)
-        {
-            if (order.Product1Id != null)
-            {
-                Product product = ProductRepository.GetProduct(order.Product1Id);
-                order.Product1Name = product.Name;
-                order.Product1Price = product.Price;
-            }
-            if (order.Product2Id != null)
-            {
-                Product product = ProductRepository.GetProduct(order.Product2Id);
-                order.Product2Name = product.Name;
-                order.Product2Price = product.Price;
-            }
-        }
-        return order;
-    }
+    public Order? GetById(int orderId) => _orderService.GetById(orderId);
 
     [HttpPost]
     [Route("")]
-    public int Create(Order order)
-    {
-        OrderRepository.CreateOrder(order);
-        return order.Id;
-    }
-
-    [HttpGet]
-    [Route("salesreport")]
-    public SalesReport GetSalesReport()
-    {
-        IList<Order> orders = OrderRepository.GetAllOrders();
-        int OrderCount = 0;
-        double totalSales = 0;
-        foreach (var o in orders)
-        {
-            OrderCount++;
-            if (o.Product1Id != null)
-            {
-                Product product = ProductRepository.GetProduct(o.Product1Id);
-                totalSales += (product.Price * o.Product1Quantiity!.Value);
-            }
-            if (o.Product2Id != null)
-            {
-                Product product = ProductRepository.GetProduct(o.Product2Id);
-                totalSales += (product.Price * o.Product2Quantiity!.Value);
-            }
-        }
-
-        return new SalesReport
-        {
-            TotalSales = totalSales,
-            OrderCount = OrderCount,
-        };
-    }
+    public int Create(Order order) => _orderService.Create(order);
 }

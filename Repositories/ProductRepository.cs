@@ -2,13 +2,24 @@
 
 namespace TixTrack.WebApiInterview.Repositories;
 
-public class ProductRepository
+public interface IProductRepository
 {
-    private static ApplicationContext _db;
-    
-    public static void Seed(ApplicationContext db)
+    Product GetProduct(int? productId);
+}
+
+public class InMemoryProductRepository : IProductRepository
+{
+    private ApplicationContext _db;
+
+    public InMemoryProductRepository(ApplicationContext db)
     {
-        db.Products.Add(new Product
+        _db = db;
+        Seed();
+    }
+    
+    private void Seed()
+    {
+        _db.Products.Add(new Product
         {
             Id = 1,
             Name = "T-shirt",
@@ -16,7 +27,7 @@ public class ProductRepository
             Price = 10.50,
             Type = "Clothing"
         });
-        db.Products.Add(new Product
+        _db.Products.Add(new Product
         {
             Id = 2,
             Name = "Souvenir Mug",
@@ -24,7 +35,7 @@ public class ProductRepository
             Price = 7.25,
             Type = "Souvenir",
         });
-        db.Products.Add(new Product
+        _db.Products.Add(new Product
         {
             Id = 3,
             Name = "Refrigerator Magnet",
@@ -32,12 +43,10 @@ public class ProductRepository
             Price = 0.99,
             Type = "Souvenir",
         });
-        db.SaveChanges();
-
-        _db = db;
+        _db.SaveChanges();
     }
     
-    public static Product GetProduct(int? productId)
+    public Product GetProduct(int? productId)
     {
         return _db.Products.Single(p => p.Id == productId);
     }
