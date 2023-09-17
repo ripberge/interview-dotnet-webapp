@@ -49,8 +49,7 @@ public partial class OrderServiceImplTests
     {
         Id = 101,
         Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
-        Product1Id = 1,
-        Product1Quantiity = 1
+        OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 1 } }
     };
     private Order _validOrderWithoutProducts => new()
     {

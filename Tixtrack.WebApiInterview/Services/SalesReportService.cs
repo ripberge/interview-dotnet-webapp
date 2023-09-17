@@ -12,7 +12,7 @@ public class SalesReportServiceImpl : ISalesReportService
 {
     private IOrderRepository _orderRepository { get; set; }
     private IProductRepository _productRepository { get; set; }
-
+ 
     public SalesReportServiceImpl(
         IOrderRepository orderRepository, IProductRepository productRepository)
     {
@@ -33,24 +33,8 @@ public class SalesReportServiceImpl : ISalesReportService
         );
     }
 
-    public double GetOrderSales(Order order)
-    {
-        double sales = 0;
-        
-        if (order.Product1Id != null)
-            sales += GetProductSales(order.Product1Id, order.Product1Quantiity);
-            
-        if (order.Product2Id != null)
-            sales += GetProductSales(order.Product2Id, order.Product2Quantiity);
+    public double GetOrderSales(Order order) => order.OrderProducts.Sum(GetProductSales);
 
-        return sales;
-    }
-
-    public double GetProductSales(int? productId, int? productQuantity)
-    {
-        return productId == null
-            ? 0
-            : (_productRepository.FindById(productId.Value)?.Price ?? 0)
-              * (productQuantity ?? 0);
-    }
+    public double GetProductSales(OrderProduct orderProduct) =>
+        _productRepository.FindById(orderProduct.ProductId)!.Price * orderProduct.Quantity;
 }

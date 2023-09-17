@@ -17,9 +17,11 @@ public partial class SalesReportServiceImplTests
             .Setup(it => it.FindById(It.IsAny<int>()))
             .Returns(expectedProduct);
 
-        var actualSales = _salesReportService.GetProductSales(
-            productId: expectedProduct.Id,
-            productQuantity: expectedQuantity);
+        var actualSales = _salesReportService.GetProductSales(new OrderProduct
+        {
+            ProductId = expectedProduct.Id,
+            Quantity = expectedQuantity
+        });
         
         var expectedSales = expectedProduct.Price * expectedQuantity;
         Assert.Equal(expectedSales, actualSales);
@@ -31,16 +33,20 @@ public partial class SalesReportServiceImplTests
         var expectedProduct = _firstValidProduct;
         var expectedOrder = _firstValidOrder with
         {
-            Product1Id = expectedProduct.Id,
-            Product1Quantiity = 2,
-            Product2Id = null,
+            OrderProducts = new List<OrderProduct>
+            {
+                new() { ProductId = expectedProduct.Id, Quantity = 2}
+            }
         };
         _productRepositoryMock
             .Setup(it => it.FindById(It.IsAny<int>()))
             .Returns(expectedProduct);
-
-        var expectedSales = _salesReportService.GetProductSales(
-            expectedProduct.Id, expectedOrder.Product1Quantiity);
+        
+        var expectedSales = _salesReportService.GetProductSales(new OrderProduct
+        {
+            ProductId = expectedProduct.Id,
+            Quantity = expectedOrder.OrderProducts.Single().Quantity
+        });
         var actualSales = _salesReportService.GetOrderSales(expectedOrder);
         
         Assert.Equal(expectedSales, actualSales);
@@ -51,16 +57,14 @@ public partial class SalesReportServiceImplTests
     {
         var expectedOrder = _firstValidOrder with
         {
-            Product1Id = _firstValidProduct.Id,
-            Product1Quantiity = 2,
-            Product2Id = _secondValidProduct.Id,
-            Product2Quantiity = 3
+            OrderProducts = new List<OrderProduct>
+            {
+                new() { ProductId = _firstValidProduct.Id, Quantity = 2 },
+                new() { ProductId = _secondValidProduct.Id, Quantity = 2 }
+            }
         };
-        var expectedSales = new List<(int? Id, int? Quantity)>
-        {
-            (expectedOrder.Product1Id, expectedOrder.Product1Quantiity),
-            (expectedOrder.Product2Id, expectedOrder.Product2Quantiity)
-        }.Sum(p => _salesReportService.GetProductSales(p.Id, p.Quantity));
+        var expectedSales = expectedOrder.OrderProducts
+            .Sum(_salesReportService.GetProductSales);
         
         var actualSales = _salesReportService.GetOrderSales(expectedOrder);
         
@@ -87,17 +91,17 @@ public partial class SalesReportServiceImplTests
     {
         Id = 101,
         Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
-        Product1Id = 1,
-        Product1Quantiity = 1
+        OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 1 } }
     };
     private Order _secondValidOrder => new()
     {
         Id = 102,
         Created = new DateTimeOffset(new DateTime(2023, 01, 02)),
-        Product1Id = 1,
-        Product1Quantiity = 2,
-        Product2Id = 2,
-        Product2Quantiity = 5,
+        OrderProducts = new List<OrderProduct>
+        {
+            new() { ProductId = 1, Quantity = 1 },
+            new() { ProductId = 2, Quantity = 5 }
+        }
     };
     private Product _firstValidProduct => new()
     {
