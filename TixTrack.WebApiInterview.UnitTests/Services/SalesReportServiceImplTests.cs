@@ -14,7 +14,7 @@ public partial class SalesReportServiceImplTests
         var expectedProduct = _firstValidProduct with { Price = 10 };
         var expectedQuantity = 2;
         _productRepositoryMock
-            .Setup(it => it.GetProduct(It.IsAny<int?>()))
+            .Setup(it => it.FindById(It.IsAny<int>()))
             .Returns(expectedProduct);
 
         var actualSales = _salesReportService.GetProductSales(
@@ -36,7 +36,7 @@ public partial class SalesReportServiceImplTests
             Product2Id = null,
         };
         _productRepositoryMock
-            .Setup(it => it.GetProduct(It.IsAny<int?>()))
+            .Setup(it => it.FindById(It.IsAny<int>()))
             .Returns(expectedProduct);
 
         var expectedSales = _salesReportService.GetProductSales(
@@ -103,7 +103,7 @@ public partial class SalesReportServiceImplTests
     {
         Id = 1,
         Name = "T-shirt",
-        AvailabileQuantity = 100,
+        AvailableQuantity = 100,
         Price = 10.50,
         Type = "Clothing"
     };
@@ -111,7 +111,7 @@ public partial class SalesReportServiceImplTests
     {
         Id = 2,
         Name = "Souvenir Mug",
-        AvailabileQuantity = 1500,
+        AvailableQuantity = 1500,
         Price = 7.25,
         Type = "Souvenir",
     };
@@ -131,7 +131,7 @@ public partial class SalesReportServiceImplTests
         new List<Product> { _firstValidProduct, _secondValidProduct }.ForEach(product =>
         {
             _productRepositoryMock
-                .Setup(it => it.GetProduct(It.Is<int?>(id => id == product.Id)))
+                .Setup(it => it.FindById(It.Is<int>(id => id == product.Id)))
                 .Returns(product);
         });
         _orderRepositoryMock

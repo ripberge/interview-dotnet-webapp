@@ -50,6 +50,7 @@ public class SalesReportServiceImpl : ISalesReportService
     {
         return productId == null
             ? 0
-            : _productRepository.GetProduct(productId).Price * productQuantity ?? 0;
+            : (_productRepository.FindById(productId.Value)?.Price ?? 0)
+              * (productQuantity ?? 0);
     }
 }

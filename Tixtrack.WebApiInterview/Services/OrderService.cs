@@ -20,33 +20,10 @@ public class OrderServiceImpl : IOrderService
         (_orderRepository, _productRepository) = (orderRepository, productRepository);
     
     public IEnumerable<Order> GetAll() =>
-        _orderRepository.GetAllOrders().Select(_mapProducts);
+        _orderRepository.GetAllOrders();
     
-    public Order? GetById(int orderId)
-    {
-        return _orderRepository.GetAllOrders()
-            .Where(order => order.Id == orderId)
-            .Select(_mapProducts)
-            .SingleOrDefault();
-    }
-
-    private Order _mapProducts(Order order)
-    {
-        if (order.Product1Id != null)
-        {
-            Product product = _productRepository.GetProduct(order.Product1Id);
-            order.Product1Name = product.Name;
-            order.Product1Price = product.Price;
-        }
-        if (order.Product2Id != null)
-        {
-            Product product = _productRepository.GetProduct(order.Product2Id);
-            order.Product2Name = product.Name;
-            order.Product2Price = product.Price;
-        }
-
-        return order;
-    }
+    public Order? GetById(int orderId) =>
+        _orderRepository.GetAllOrders().SingleOrDefault(order => order.Id == orderId);
     
     public int Create(Order order)
     {

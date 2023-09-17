@@ -30,36 +30,6 @@ public partial class OrderServiceImplTests
     }
     
     [Fact]
-    public void FirstProductDataIsNotEmptyWhenProductIdIsNotNull()
-    {
-        var expectedProduct = _validProduct;
-        var expectedOrder = _validOrder with { Product1Id = expectedProduct.Id };
-        _orderRepositoryMock.
-            Setup(it => it.GetAllOrders())
-            .Returns(new List<Order> { expectedOrder });
-
-        var actualOrder = _orderService.GetAll().SingleOrDefault();
-        
-        Assert.Equal(expectedProduct.Name, actualOrder?.Product1Name);
-        Assert.Equal(expectedProduct.Price, actualOrder!.Product1Price);
-    }
-    
-    [Fact]
-    public void SecondProductDataIsNotEmptyWhenProductIdIsNotNull()
-    {
-        var expectedProduct = _validProduct;
-        var expectedOrder = _validOrder with { Product2Id = expectedProduct.Id };
-        _orderRepositoryMock.
-            Setup(it => it.GetAllOrders())
-            .Returns(new List<Order> { expectedOrder });
-
-        var actualOrder = _orderService.GetAll().SingleOrDefault();
-        
-        Assert.Equal(expectedProduct.Name, actualOrder?.Product2Name);
-        Assert.Equal(expectedProduct.Price, actualOrder!.Product2Price);
-    }
-
-    [Fact]
     public void OrderIdMatchesDatabaseStoredId()
     {
         var expectedOrder = _validOrderWithoutProducts with { Id = 1 };
@@ -91,7 +61,7 @@ public partial class OrderServiceImplTests
     {
         Id = 1,
         Name = "T-shirt",
-        AvailabileQuantity = 100,
+        AvailableQuantity = 100,
         Price = 10.50,
         Type = "Clothing"
     };
@@ -112,7 +82,7 @@ public partial class OrderServiceImplTests
             .Setup(it => it.GetAllOrders())
             .Returns(new List<Order> { _validOrder, _validOrderWithoutProducts });
         _productRepositoryMock
-            .Setup(it => it.GetProduct(It.Is<int?>(id => id == _validProduct.Id)))
+            .Setup(it => it.FindById(It.Is<int>(id => id == _validProduct.Id)))
             .Returns(_validProduct);
     }
 }

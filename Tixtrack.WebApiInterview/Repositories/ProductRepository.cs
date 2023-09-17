@@ -4,7 +4,7 @@ namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IProductRepository
 {
-    Product GetProduct(int? productId);
+    Product? FindById(int id);
 }
 
 public class InMemoryProductRepository : IProductRepository
@@ -14,40 +14,62 @@ public class InMemoryProductRepository : IProductRepository
     public InMemoryProductRepository(ApplicationContext db)
     {
         _db = db;
-        Seed();
+        _seed();
     }
     
-    private void Seed()
+    private void _seed()
     {
-        _db.Products.Add(new Product
+        _bulkInsert(new List<Product>
         {
-            Id = 1,
-            Name = "T-shirt",
-            AvailabileQuantity = 100,
-            Price = 10.50,
-            Type = "Clothing"
+            new()
+            {
+                Id = 1,
+                Name = "T-shirt",
+                AvailableQuantity = 100,
+                Price = 10.50,
+                Type = "Clothing"
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Souvenir Mug",
+                AvailableQuantity = 1500,
+                Price = 7.25,
+                Type = "Souvenir",
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Refrigerator Magnet",
+                AvailableQuantity = 5000,
+                Price = 0.99,
+                Type = "Souvenir",
+            }
         });
-        _db.Products.Add(new Product
-        {
-            Id = 2,
-            Name = "Souvenir Mug",
-            AvailabileQuantity = 1500,
-            Price = 7.25,
-            Type = "Souvenir",
-        });
-        _db.Products.Add(new Product
-        {
-            Id = 3,
-            Name = "Refrigerator Magnet",
-            AvailabileQuantity = 5000,
-            Price = 0.99,
-            Type = "Souvenir",
-        });
+    }
+
+    private IEnumerable<int> _bulkInsert(List<Product> products)
+    {
+        products.ForEach(product => _db.Products.Add(product));
         _db.SaveChanges();
+        return products.Select(product => product.Id);
+    }
+
+    public int Insert(Product product)
+    {
+        _db.Products.Add(product);
+        _db.SaveChanges();
+        return product.Id;
     }
     
-    public Product GetProduct(int? productId)
+    public Product? FindById(int id) =>
+        _db.Products.SingleOrDefault(product => product.Id == id);
+
+    public void Delete(int id)
     {
-        return _db.Products.Single(p => p.Id == productId);
+        var product = new Product { Id = id };
+        _db.Products.Attach(product);
+        _db.Products.Remove(product);
+        _db.SaveChanges();
     }
 }
