@@ -14,6 +14,8 @@ public class ProductController : ControllerBase
 
     [HttpGet]
     [Route("product/{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Product>> GetById(int productId)
     {
         var product = await _productRepository.FindById(productId);
