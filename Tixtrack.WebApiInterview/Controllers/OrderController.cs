@@ -12,10 +12,20 @@ public class OrderController : ControllerBase
     
     public OrderController(IOrderService orderService) => _orderService = orderService;
 
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<int>> Create(Order order)
+    {
+        return new ObjectResult(await _orderService.Create(order))
+        {
+            StatusCode = StatusCodes.Status201Created
+        };
+    }
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IList<Order>>> GetAll()
+    public async Task<ActionResult<IList<Order>>> ReadAll()
     {
         var orders = await _orderService.GetAll();
         return orders.Count > 0 ? Ok(orders) : NoContent();
@@ -25,19 +35,9 @@ public class OrderController : ControllerBase
     [Route("{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Order?>> GetById(int orderId)
+    public async Task<ActionResult<Order?>> ReadById(int orderId)
     {
         var order = await _orderService.GetById(orderId);
         return order == null ? NotFound() : Ok(order);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<int>> Create(Order order)
-    {
-        return new ObjectResult(await _orderService.Create(order))
-        {
-            StatusCode = StatusCodes.Status201Created
-        };
     }
 }

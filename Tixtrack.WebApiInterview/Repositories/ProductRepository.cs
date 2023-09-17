@@ -5,6 +5,7 @@ namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IProductRepository
 {
+    Task<int> Insert(Product product);
     Task<Product?> FindById(int id);
 }
 
@@ -64,12 +65,4 @@ public class InMemoryProductRepository : IProductRepository
     
     public Task<Product?> FindById(int id) =>
         _db.Products.SingleOrDefaultAsync(product => product.Id == id);
-
-    public async Task Delete(int id)
-    {
-        var product = new Product { Id = id };
-        _db.Products.Attach(product);
-        _db.Products.Remove(product);
-        await _db.SaveChangesAsync();
-    }
 }

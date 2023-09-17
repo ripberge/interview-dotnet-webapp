@@ -1,7 +1,11 @@
+using Serilog;
 using TixTrack.WebApiInterview.Repositories;
 using TixTrack.WebApiInterview.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services
     .AddSingleton<ApplicationContext>()
@@ -9,6 +13,7 @@ builder.Services
     .AddSingleton<IOrderRepository, InMemoryOrderRepository>();
 
 builder.Services
+    .AddScoped<IProductService, ProductServiceImpl>()
     .AddScoped<IOrderService, OrderServiceImpl>()
     .AddScoped<ISalesReportService, SalesReportServiceImpl>();
 
@@ -21,6 +26,8 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using TixTrack.WebApiInterview.Entities;
 using TixTrack.WebApiInterview.Repositories;
@@ -74,6 +75,7 @@ public partial class OrderServiceImplTests
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _productRepositoryMock = new Mock<IProductRepository>();
         _orderService = new OrderServiceImpl(
+            logger: new Mock<ILogger<OrderServiceImpl>>().Object,
             orderRepository: _orderRepositoryMock.Object,
             productRepository: _productRepositoryMock.Object);
 

@@ -12,12 +12,19 @@ public interface IOrderService
 
 public class OrderServiceImpl : IOrderService
 {
+    private ILogger<OrderServiceImpl> _logger { get; set; }
     private IOrderRepository _orderRepository { get; set; }
     private IProductRepository _productRepository { get; set; }
 
     public OrderServiceImpl(
-        IOrderRepository orderRepository, IProductRepository productRepository) =>
-        (_orderRepository, _productRepository) = (orderRepository, productRepository);
+        ILogger<OrderServiceImpl> logger,
+        IOrderRepository orderRepository,
+        IProductRepository productRepository)
+    {
+        _logger = logger;
+        _orderRepository = orderRepository;
+        _productRepository = productRepository;
+    }
     
     public Task<IList<Order>> GetAll() => _orderRepository.GetAllOrders();
 
@@ -29,7 +36,8 @@ public class OrderServiceImpl : IOrderService
     
     public async Task<int> Create(Order order)
     {
-        await _orderRepository.CreateOrder(order);
-        return order.Id;
+        var orderId = (await _orderRepository.CreateOrder(order)).Id;
+        _logger.LogInformation("Created order with ID {Id}.", orderId);
+        return orderId;
     }
 }
