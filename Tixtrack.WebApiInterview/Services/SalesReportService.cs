@@ -5,7 +5,7 @@ using TixTrack.WebApiInterview.Repositories;
 namespace TixTrack.WebApiInterview.Services;
 
 public interface ISalesReportService {
-    SalesReport GetAllTime();
+    Task<SalesReport> GetAllTime();
 }
 
 public class SalesReportServiceImpl : ISalesReportService
@@ -20,21 +20,30 @@ public class SalesReportServiceImpl : ISalesReportService
         _productRepository = productRepository;
     }
 
-    public SalesReport GetAllTime()
+    public async Task<SalesReport> GetAllTime()
     {
-        return _orderRepository.GetAllOrders().Aggregate(
+        return (await _getOrdersSales()).Aggregate(
             seed: new SalesReport(),
-            func: (salesReport, order) =>
+            func: (salesReport, orderSales) =>
             {
-                salesReport.TotalSales += GetOrderSales(order);
+                salesReport.TotalSales += orderSales;
                 salesReport.OrderCount++;
                 return salesReport;
-            }
-        );
+            });
     }
 
-    public double GetOrderSales(Order order) => order.OrderProducts.Sum(GetProductSales);
+    private async Task<double[]> _getOrdersSales()
+    {
+        var orders = await _orderRepository.GetAllOrders();
+        return await Task.WhenAll(orders.Select(GetOrderSales));
+    }
 
-    public double GetProductSales(OrderProduct orderProduct) =>
-        _productRepository.FindById(orderProduct.ProductId)!.Price * orderProduct.Quantity;
+    public async Task<double> GetOrderSales(Order order) =>
+        (await Task.WhenAll(order.OrderProducts.Select(GetProductSales))).Sum();
+
+    public async Task<double> GetProductSales(OrderProduct orderProduct)
+    {
+        var product = await _productRepository.FindById(orderProduct.ProductId);
+        return product!.Price * orderProduct.Quantity;
+    }
 }

@@ -7,23 +7,23 @@ namespace TixTrack.WebApiInterview.IntegrationTests.Repositories;
 public partial class InMemoryProductRepositoryTests
 {
     [Fact]
-    public void ProductIsNotAbsentForExistingId()
+    public async Task ProductIsNotAbsentForExistingId()
     {
         var expectedProduct = _validProduct with { Name = Guid.NewGuid().ToString() };
-        var expectedId = _productRepository.Insert(expectedProduct);
+        var expectedId = await _productRepository.Insert(expectedProduct);
 
-        var actualProduct = _productRepository.FindById(expectedId);
+        var actualProduct = await _productRepository.FindById(expectedId);
         
         Assert.Equal(expectedProduct.Name, actualProduct?.Name);
     }
 
     [Fact]
-    public void StoredAndRetrievedDataAreNotInconsistent()
+    public async Task StoredAndRetrievedDataAreNotInconsistent()
     {
         var expectedProduct = _validProduct;
-        var expectedId = _productRepository.Insert(expectedProduct);
+        var expectedId = await _productRepository.Insert(expectedProduct);
         
-        var actualProduct = _productRepository.FindById(expectedId);
+        var actualProduct = await _productRepository.FindById(expectedId);
         
         Assert.Equal(expectedProduct, actualProduct);
     }

@@ -14,13 +14,13 @@ public class OrderController : ControllerBase
 
     [HttpGet]
     [Route("")]
-    public IEnumerable<Order> GetAll() => _orderService.GetAll();
+    public Task<IList<Order>> GetAll() => _orderService.GetAll();
 
     [HttpGet]
     [Route("{orderId}")]
-    public Order? GetById(int orderId) => _orderService.GetById(orderId);
+    public Task<Order?> GetById(int orderId) => _orderService.GetById(orderId);
 
     [HttpPost]
     [Route("")]
-    public int Create(Order order) => _orderService.Create(order);
+    public Task<int> Create(Order order) => _orderService.Create(order);
 }

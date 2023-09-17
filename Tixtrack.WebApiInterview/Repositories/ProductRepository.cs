@@ -1,10 +1,11 @@
-﻿using TixTrack.WebApiInterview.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TixTrack.WebApiInterview.Entities;
 
 namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IProductRepository
 {
-    Product? FindById(int id);
+    Task<Product?> FindById(int id);
 }
 
 public class InMemoryProductRepository : IProductRepository
@@ -48,28 +49,27 @@ public class InMemoryProductRepository : IProductRepository
         });
     }
 
-    private IEnumerable<int> _bulkInsert(List<Product> products)
+    private void _bulkInsert(List<Product> products)
     {
         products.ForEach(product => _db.Products.Add(product));
         _db.SaveChanges();
-        return products.Select(product => product.Id);
     }
 
-    public int Insert(Product product)
+    public async Task<int> Insert(Product product)
     {
         _db.Products.Add(product);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
         return product.Id;
     }
     
-    public Product? FindById(int id) =>
-        _db.Products.SingleOrDefault(product => product.Id == id);
+    public Task<Product?> FindById(int id) =>
+        _db.Products.SingleOrDefaultAsync(product => product.Id == id);
 
-    public void Delete(int id)
+    public async Task Delete(int id)
     {
         var product = new Product { Id = id };
         _db.Products.Attach(product);
         _db.Products.Remove(product);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
     }
 }

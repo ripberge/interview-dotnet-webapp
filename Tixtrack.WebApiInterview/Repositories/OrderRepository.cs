@@ -1,11 +1,12 @@
-﻿using TixTrack.WebApiInterview.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TixTrack.WebApiInterview.Entities;
 
 namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IOrderRepository
 {
-    IList<Order> GetAllOrders();
-    Order CreateOrder(Order order);
+    Task<IList<Order>> GetAllOrders();
+    Task<Order> CreateOrder(Order order);
 }
 
 public class InMemoryOrderRepository : IOrderRepository
@@ -68,12 +69,12 @@ public class InMemoryOrderRepository : IOrderRepository
         _db.SaveChanges();
     }
     
-    public IList<Order> GetAllOrders() => _db.Orders.ToList();
+    public async Task<IList<Order>> GetAllOrders() => await _db.Orders.ToListAsync();
 
-    public Order CreateOrder(Order order)
+    public async Task<Order> CreateOrder(Order order)
     {
         _db.Orders.Add(order);
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
         return order;
     }
 }

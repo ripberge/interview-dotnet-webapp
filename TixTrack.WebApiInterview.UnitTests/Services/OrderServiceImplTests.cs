@@ -9,35 +9,35 @@ namespace TixTrack.WebApiInterview.UnitTests.Services;
 public partial class OrderServiceImplTests
 {
     [Fact]
-    public void OrderIsNotFoundWhenIdDoesNotExists()
+    public async Task OrderIsNotFoundWhenIdDoesNotExists()
     {
         var expectedOrder = _validOrder;
 
         var unknownId = expectedOrder.Id + 1;
-        var actualOrder = _orderService.GetById(unknownId);
+        var actualOrder = await _orderService.GetById(unknownId);
         
         Assert.Null(actualOrder);
     }
     
     [Fact]
-    public void OrderIsFoundWhenIdExists()
+    public async Task OrderIsFoundWhenIdExists()
     {
         var expectedOrder = _validOrderWithoutProducts;
 
-        var actualOrder = _orderService.GetById(expectedOrder.Id);
+        var actualOrder = await _orderService.GetById(expectedOrder.Id);
         
         Assert.Equal(expectedOrder.Id, actualOrder?.Id);
     }
     
     [Fact]
-    public void OrderIdMatchesDatabaseStoredId()
+    public async Task OrderIdMatchesDatabaseStoredId()
     {
         var expectedOrder = _validOrderWithoutProducts with { Id = 1 };
         _orderRepositoryMock
             .Setup(it => it.CreateOrder(It.IsAny<Order>()))
-            .Returns(expectedOrder);
+            .Returns(Task.FromResult(expectedOrder));
 
-        var actualOrderId = _orderService.Create(expectedOrder);
+        var actualOrderId = await _orderService.Create(expectedOrder);
         
         Assert.Equal(expectedOrder.Id, actualOrderId);
     }
@@ -76,12 +76,16 @@ public partial class OrderServiceImplTests
         _orderService = new OrderServiceImpl(
             orderRepository: _orderRepositoryMock.Object,
             productRepository: _productRepositoryMock.Object);
-        
+
         _orderRepositoryMock
             .Setup(it => it.GetAllOrders())
-            .Returns(new List<Order> { _validOrder, _validOrderWithoutProducts });
+            .Returns(Task.FromResult((IList<Order>)new List<Order>
+            {
+                _validOrder,
+                _validOrderWithoutProducts
+            }));
         _productRepositoryMock
             .Setup(it => it.FindById(It.Is<int>(id => id == _validProduct.Id)))
-            .Returns(_validProduct);
+            .Returns(Task.FromResult((Product?)_validProduct));
     }
 }

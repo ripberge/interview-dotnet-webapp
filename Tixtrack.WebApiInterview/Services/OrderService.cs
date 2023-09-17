@@ -5,9 +5,9 @@ namespace TixTrack.WebApiInterview.Services;
 
 public interface IOrderService
 {
-    IEnumerable<Order> GetAll();
-    Order? GetById(int orderId);
-    int Create(Order order);
+    Task<IList<Order>> GetAll();
+    Task<Order?> GetById(int orderId);
+    Task<int> Create(Order order);
 }
 
 public class OrderServiceImpl : IOrderService
@@ -19,15 +19,17 @@ public class OrderServiceImpl : IOrderService
         IOrderRepository orderRepository, IProductRepository productRepository) =>
         (_orderRepository, _productRepository) = (orderRepository, productRepository);
     
-    public IEnumerable<Order> GetAll() =>
-        _orderRepository.GetAllOrders();
-    
-    public Order? GetById(int orderId) =>
-        _orderRepository.GetAllOrders().SingleOrDefault(order => order.Id == orderId);
-    
-    public int Create(Order order)
+    public Task<IList<Order>> GetAll() => _orderRepository.GetAllOrders();
+
+    public async Task<Order?> GetById(int orderId)
     {
-        _orderRepository.CreateOrder(order);
+        var orders = await _orderRepository.GetAllOrders();
+        return orders.SingleOrDefault(order => order.Id == orderId);
+    }
+    
+    public async Task<int> Create(Order order)
+    {
+        await _orderRepository.CreateOrder(order);
         return order.Id;
     }
 }

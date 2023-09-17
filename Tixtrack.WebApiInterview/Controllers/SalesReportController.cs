@@ -14,5 +14,5 @@ public class SalesReportController : ControllerBase
 
     [HttpGet]
     [Route("Order/salesreport")]
-    public SalesReport GetAllTime() => _salesReportService.GetAllTime();
+    public Task<SalesReport> GetAllTime() => _salesReportService.GetAllTime();
 }

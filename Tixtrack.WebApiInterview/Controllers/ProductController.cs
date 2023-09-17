@@ -14,9 +14,9 @@ public class ProductController : ControllerBase
 
     [HttpGet]
     [Route("product/{productId}")]
-    public ActionResult<Product> GetById(int productId)
+    public async Task<ActionResult<Product>> GetById(int productId)
     {
-        var product = _productRepository.FindById(productId);
+        var product = await _productRepository.FindById(productId);
         return product == null ? NotFound() : Ok(product);
     }
 }
