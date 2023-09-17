@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tixtrack.WebApiInterview", "Tixtrack.WebApiInterview\Tixtrack.WebApiInterview.csproj", "{70D4A55D-9B7F-46B0-9D84-825CCB1A4739}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TixTrack.WebApiInterview.UnitTests", "TixTrack.WebApiInterview.UnitTests\TixTrack.WebApiInterview.UnitTests.csproj", "{6158CD47-AC18-4ECD-ACCF-8164EE40EE2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{70D4A55D-9B7F-46B0-9D84-825CCB1A4739}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70D4A55D-9B7F-46B0-9D84-825CCB1A4739}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70D4A55D-9B7F-46B0-9D84-825CCB1A4739}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6158CD47-AC18-4ECD-ACCF-8164EE40EE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6158CD47-AC18-4ECD-ACCF-8164EE40EE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6158CD47-AC18-4ECD-ACCF-8164EE40EE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6158CD47-AC18-4ECD-ACCF-8164EE40EE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

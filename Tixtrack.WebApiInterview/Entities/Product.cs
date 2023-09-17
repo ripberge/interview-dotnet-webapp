@@ -2,7 +2,7 @@
 
 namespace TixTrack.WebApiInterview.Entities;
 
-public class Product
+public record Product
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int Id { get; set; }

@@ -19,31 +19,37 @@ public class SalesReportServiceImpl : ISalesReportService
         _orderRepository = orderRepository;
         _productRepository = productRepository;
     }
-    
+
     public SalesReport GetAllTime()
     {
-        IList<Order> orders = _orderRepository.GetAllOrders();
-        int orderCount = 0;
-        double totalSales = 0;
-        foreach (var o in orders)
-        {
-            orderCount++;
-            if (o.Product1Id != null)
+        return _orderRepository.GetAllOrders().Aggregate(
+            seed: new SalesReport(),
+            func: (salesReport, order) =>
             {
-                Product product = _productRepository.GetProduct(o.Product1Id);
-                totalSales += (product.Price * o.Product1Quantiity!.Value);
+                salesReport.TotalSales += GetOrderSales(order);
+                salesReport.OrderCount++;
+                return salesReport;
             }
-            if (o.Product2Id != null)
-            {
-                Product product = _productRepository.GetProduct(o.Product2Id);
-                totalSales += (product.Price * o.Product2Quantiity!.Value);
-            }
-        }
+        );
+    }
 
-        return new SalesReport
-        {
-            TotalSales = totalSales,
-            OrderCount = orderCount,
-        };
+    public double GetOrderSales(Order order)
+    {
+        double sales = 0;
+        
+        if (order.Product1Id != null)
+            sales += GetProductSales(order.Product1Id, order.Product1Quantiity);
+            
+        if (order.Product2Id != null)
+            sales += GetProductSales(order.Product2Id, order.Product2Quantiity);
+
+        return sales;
+    }
+
+    public double GetProductSales(int? productId, int? productQuantity)
+    {
+        return productId == null
+            ? 0
+            : _productRepository.GetProduct(productId).Price * productQuantity ?? 0;
     }
 }
