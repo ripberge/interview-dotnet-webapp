@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Tixtrack.WebApiInterview;
+namespace TixTrack.WebApiInterview.Entities;
 
 public class Order
 {
@@ -24,14 +24,3 @@ public class Order
     [NotMapped]
     public double Product2Price { get; set; }
 }
-
-public class Product
-{
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int AvailabileQuantity { get; set; }
-    public double Price { get; set; }
-    public string Type { get; set; } = string.Empty;
-}
-
