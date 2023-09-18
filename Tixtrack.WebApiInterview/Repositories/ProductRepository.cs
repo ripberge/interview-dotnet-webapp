@@ -7,21 +7,18 @@ public interface IProductRepository
 {
     Task<int> Insert(Product product);
     Task<Product?> FindById(int id);
+    Task<Product> Save(Product product);
 }
 
-public class InMemoryProductRepository : IProductRepository
+public class InMemoryProductRepository : InMemoryRepository, IProductRepository
 {
-    private ApplicationContext _db;
-
-    public InMemoryProductRepository(ApplicationContext db)
+    public InMemoryProductRepository(ApplicationContext db) : base(db)
     {
-        _db = db;
-        _seed();
     }
     
-    private void _seed()
+    public override void Seed()
     {
-        _bulkInsert(new List<Product>
+        BulkInsertSync(Db.Products, new List<Product>
         {
             new()
             {
@@ -50,19 +47,18 @@ public class InMemoryProductRepository : IProductRepository
         });
     }
 
-    private void _bulkInsert(List<Product> products)
-    {
-        products.ForEach(product => _db.Products.Add(product));
-        _db.SaveChanges();
-    }
-
     public async Task<int> Insert(Product product)
     {
-        _db.Products.Add(product);
-        await _db.SaveChangesAsync();
+        await SaveAndDetach(entry: Db.Products.Add(product));
         return product.Id;
     }
     
     public Task<Product?> FindById(int id) =>
-        _db.Products.SingleOrDefaultAsync(product => product.Id == id);
+        Db.Products.AsNoTracking().SingleOrDefaultAsync(product => product.Id == id);
+
+    public async Task<Product> Save(Product product)
+    {
+        await SaveAndDetach(entity: product);
+        return product;
+    }
 }

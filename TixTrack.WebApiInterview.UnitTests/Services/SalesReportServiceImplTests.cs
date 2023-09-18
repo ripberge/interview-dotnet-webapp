@@ -13,10 +13,7 @@ public partial class SalesReportServiceImplTests
     {
         var expectedProduct = _firstValidProduct with { Price = 10 };
         var expectedQuantity = 2;
-        _productRepositoryMock
-            .Setup(it => it.FindById(It.IsAny<int>()))
-            .Returns(Task.FromResult((Product?)expectedProduct));
-        var expectedSales = expectedProduct.Price * expectedQuantity;
+        _mockFindById(returnValue: expectedProduct);
 
         var actualSales = await _salesReportService.GetProductSales(new OrderProduct
         {
@@ -24,6 +21,7 @@ public partial class SalesReportServiceImplTests
             Quantity = expectedQuantity
         });
         
+        var expectedSales = expectedProduct.Price * expectedQuantity;
         Assert.Equal(expectedSales, actualSales);
     }
 
@@ -38,9 +36,7 @@ public partial class SalesReportServiceImplTests
                 new() { ProductId = expectedProduct.Id, Quantity = 2}
             }
         };
-        _productRepositoryMock
-            .Setup(it => it.FindById(It.IsAny<int>()))
-            .Returns(Task.FromResult((Product?)expectedProduct));
+        _mockFindById(expectedProduct);
         
         var expectedSales = await _salesReportService.GetProductSales(new OrderProduct
         {
@@ -68,19 +64,20 @@ public partial class SalesReportServiceImplTests
         
         Assert.Equal(expectedSales, actualSales);
     }
-    
+
     [Fact]
-    public async Task GetAllTimeSalesReportAggregatesAllOrderSales()
+    public async Task CancelledOrdersAreNotIncluded()
     {
-        var orders = new List<Order> { _firstValidOrder, _secondValidOrder };
-        var expectedTotalSales = (await Task.WhenAll(
-            orders.Select(_salesReportService.GetOrderSales))).Sum();
-        var expectedOrderCount = orders.Count;
+        var (activeOrder, cancelledOrder) = (_firstValidOrder, _validCancelledOrder);
+        _mockGetAllOrders(returnValue: new List<Order> { activeOrder, cancelledOrder });
+        _mockGetActiveOrders(returnValue: new List<Order> { activeOrder });
 
         var actualSalesReport = await _salesReportService.GetAllTime();
 
-        Assert.Equal(expectedTotalSales, actualSalesReport.TotalSales);
+        var expectedOrderCount = 1;
+        var expectedOrderSales = await _salesReportService.GetOrderSales(activeOrder);
         Assert.Equal(expectedOrderCount, actualSalesReport.OrderCount);
+        Assert.Equal(expectedOrderSales, actualSalesReport.TotalSales);
     }
 }
 
@@ -89,18 +86,27 @@ public partial class SalesReportServiceImplTests
     private Order _firstValidOrder => new()
     {
         Id = 101,
+        Status = OrderStatus.Active,
         Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
         OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 1 } }
     };
     private Order _secondValidOrder => new()
     {
         Id = 102,
+        Status = OrderStatus.Active,
         Created = new DateTimeOffset(new DateTime(2023, 01, 02)),
         OrderProducts = new List<OrderProduct>
         {
             new() { ProductId = 1, Quantity = 1 },
             new() { ProductId = 2, Quantity = 5 }
         }
+    };
+    private Order _validCancelledOrder => new()
+    {
+        Id = 201,
+        Status = OrderStatus.Cancelled,
+        Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
+        OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 3 } }
     };
     private Product _firstValidProduct => new()
     {
@@ -130,19 +136,31 @@ public partial class SalesReportServiceImplTests
         _salesReportService = new SalesReportServiceImpl(
             orderRepository: _orderRepositoryMock.Object,
             productRepository: _productRepositoryMock.Object);
-        
-        new List<Product> { _firstValidProduct, _secondValidProduct }.ForEach(product =>
-        {
-            _productRepositoryMock
-                .Setup(it => it.FindById(It.Is<int>(id => id == product.Id)))
-                .Returns(Task.FromResult((Product?)product));
-        });
+
+        _mockFindById(returnValue: _firstValidProduct);
+        _mockFindById(returnValue: _secondValidProduct);
+        _mockGetAllOrders(
+            returnValue: new List<Order> { _firstValidOrder, _secondValidOrder });
+    }
+
+    private void _mockFindById(Product returnValue)
+    {
+        _productRepositoryMock
+            .Setup(it => it.FindById(It.Is<int>(id => id == returnValue.Id)))
+            .Returns(Task.FromResult((Product?)returnValue));
+    }
+
+    private void _mockGetAllOrders(List<Order> returnValue)
+    {
         _orderRepositoryMock
             .Setup(it => it.GetAllOrders())
-            .Returns(Task.FromResult((IList<Order>)new List<Order>
-            {
-                _firstValidOrder,
-                _secondValidOrder
-            }));
+            .Returns(Task.FromResult((IList<Order>)returnValue));
+    }
+    
+    private void _mockGetActiveOrders(List<Order> returnValue)
+    {
+        _orderRepositoryMock
+            .Setup(it => it.GetActiveOrders())
+            .Returns(Task.FromResult((IList<Order>)returnValue));
     }
 }

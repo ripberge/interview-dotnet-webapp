@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TixTrack.WebApiInterview.Entities;
+using TixTrack.WebApiInterview.Exceptions;
 using TixTrack.WebApiInterview.Services;
 
 namespace TixTrack.WebApiInterview.Controllers;
@@ -39,5 +40,27 @@ public class OrderController : ControllerBase
     {
         var order = await _orderService.GetById(orderId);
         return order == null ? NotFound() : Ok(order);
+    }
+
+    [HttpDelete]
+    [Route("{orderId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    public async Task<IActionResult> Cancel(int orderId)
+    {
+        try
+        {
+            await _orderService.Cancel(orderId);
+            return Ok();
+        }
+        catch (OrderNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (OrderIsNotActiveException)
+        {
+            return StatusCode(StatusCodes.Status412PreconditionFailed, "The order might have been already cancelled.");
+        }
     }
 }

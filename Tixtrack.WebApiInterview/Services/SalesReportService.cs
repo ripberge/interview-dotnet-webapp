@@ -34,7 +34,7 @@ public class SalesReportServiceImpl : ISalesReportService
 
     private async Task<double[]> _getOrdersSales()
     {
-        var orders = await _orderRepository.GetAllOrders();
+        var orders = await _orderRepository.GetActiveOrders();
         return await Task.WhenAll(orders.Select(GetOrderSales));
     }
 

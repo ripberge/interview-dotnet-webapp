@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Serilog;
 using TixTrack.WebApiInterview.Repositories;
 using TixTrack.WebApiInterview.Services;
@@ -8,16 +9,21 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services
-    .AddSingleton<ApplicationContext>()
-    .AddSingleton<IProductRepository, InMemoryProductRepository>()
-    .AddSingleton<IOrderRepository, InMemoryOrderRepository>();
+    .AddDbContext<ApplicationContext>()
+    .AddScoped<IProductRepository, InMemoryProductRepository>()
+    .AddScoped<IOrderRepository, InMemoryOrderRepository>();
 
 builder.Services
     .AddScoped<IProductService, ProductServiceImpl>()
     .AddScoped<IOrderService, OrderServiceImpl>()
     .AddScoped<ISalesReportService, SalesReportServiceImpl>();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 if (builder.Environment.IsDevelopment())
 {
@@ -26,6 +32,13 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    // TODO: Add services with Scrutor and then seed all repositories of GetServices<InMemoryRepository>().
+    (scope.ServiceProvider.GetRequiredService<IProductRepository>() as InMemoryProductRepository)?.Seed();
+    (scope.ServiceProvider.GetRequiredService<IOrderRepository>() as InMemoryOrderRepository)?.Seed();
+}
 
 app.UseSerilogRequestLogging();
 
