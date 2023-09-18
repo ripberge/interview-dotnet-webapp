@@ -40,11 +40,7 @@ public class OrderServiceImpl : IOrderService
     
     public Task<IList<Order>> GetAll() => _orderRepository.GetAllOrders();
 
-    public async Task<Order?> GetById(int orderId)
-    {
-        var orders = await _orderRepository.GetAllOrders();
-        return orders.SingleOrDefault(order => order.Id == orderId);
-    }
+    public Task<Order?> GetById(int orderId) => _orderRepository.GetById(orderId);
 
     public async Task Cancel(int orderId)
     {

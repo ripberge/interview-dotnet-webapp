@@ -8,6 +8,7 @@ public interface IOrderRepository
     Task<Order> CreateOrder(Order order);
     Task<IList<Order>> GetAllOrders();
     Task<IList<Order>> GetActiveOrders();
+    Task<Order?> GetById(int orderId);
     Task<Order> SaveOrder(Order order);
 }
 
@@ -68,6 +69,14 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .Where(order => order.Status == OrderStatus.Active)
             .AsNoTracking()
             .ToListAsync();
+    }
+
+    public Task<Order?> GetById(int orderId)
+    {
+        return Db.Orders
+            .Include(order => order.OrderProducts)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(order => order.Id == orderId);
     }
 
     public async Task<Order> SaveOrder(Order order)
