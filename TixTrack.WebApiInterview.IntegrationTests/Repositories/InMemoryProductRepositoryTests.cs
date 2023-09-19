@@ -33,7 +33,7 @@ public partial class InMemoryProductRepositoryTests
 {
     private Product _validProduct => new()
     {
-        Id = 10,
+        Id = "01HAP121X4J34H1PEYJ9WXWC80",
         Name = "T-shirt",
         AvailableQuantity = 100,
         Price = 10.50,

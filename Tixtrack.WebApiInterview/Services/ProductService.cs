@@ -5,7 +5,7 @@ namespace TixTrack.WebApiInterview.Services;
 
 public interface IProductService
 {
-    Task<int> Create(Product product);
+    Task<string> Create(Product product);
 }
 
 public class ProductServiceImpl : IProductService
@@ -17,7 +17,7 @@ public class ProductServiceImpl : IProductService
         ILogger<ProductServiceImpl> logger, IProductRepository productRepository) =>
         (_logger, _productRepository) = (logger, productRepository);
     
-    public async Task<int> Create(Product product)
+    public async Task<string> Create(Product product)
     {
         var productId = await _productRepository.Insert(product);
         _logger.LogInformation("Created product with ID {Id}.", productId);

@@ -85,32 +85,38 @@ public partial class SalesReportServiceImplTests
 {
     private Order _firstValidOrder => new()
     {
-        Id = 101,
+        Id = "01HANZZ3C3DJ6Z3NTF53SSDAYC",
         Status = OrderStatus.Active,
         Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
-        OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 1 } }
+        OrderProducts = new List<OrderProduct>
+        {
+            new() { ProductId = "01HAP05RW9A0V5Z8NZ57A73JMY", Quantity = 1 }
+        }
     };
     private Order _secondValidOrder => new()
     {
-        Id = 102,
+        Id = "01HAP01DBV9GZ418GCS4BNRXN5",
         Status = OrderStatus.Active,
         Created = new DateTimeOffset(new DateTime(2023, 01, 02)),
         OrderProducts = new List<OrderProduct>
         {
-            new() { ProductId = 1, Quantity = 1 },
-            new() { ProductId = 2, Quantity = 5 }
+            new() { ProductId = "01HAP05RW9A0V5Z8NZ57A73JMY", Quantity = 1 },
+            new() { ProductId = "01HAP09BED95ST5G88HTCC9G9Q", Quantity = 5 }
         }
     };
     private Order _validCancelledOrder => new()
     {
-        Id = 201,
+        Id = "01HAP1A5GYXWGC81H0N19YV3EV",
         Status = OrderStatus.Cancelled,
         Created = new DateTimeOffset(new DateTime(2023, 01, 01)),
-        OrderProducts = new List<OrderProduct> { new() { ProductId = 1, Quantity = 3 } }
+        OrderProducts = new List<OrderProduct>
+        {
+            new() { ProductId = "01HAP05RW9A0V5Z8NZ57A73JMY", Quantity = 3 }
+        }
     };
     private Product _firstValidProduct => new()
     {
-        Id = 1,
+        Id = "01HAP05RW9A0V5Z8NZ57A73JMY",
         Name = "T-shirt",
         AvailableQuantity = 100,
         Price = 10.50,
@@ -118,7 +124,7 @@ public partial class SalesReportServiceImplTests
     };
     private Product _secondValidProduct => new()
     {
-        Id = 2,
+        Id = "01HAP09BED95ST5G88HTCC9G9Q",
         Name = "Souvenir Mug",
         AvailableQuantity = 1500,
         Price = 7.25,
@@ -146,7 +152,7 @@ public partial class SalesReportServiceImplTests
     private void _mockFindById(Product returnValue)
     {
         _productRepositoryMock
-            .Setup(it => it.FindById(It.Is<int>(id => id == returnValue.Id)))
+            .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))
             .Returns(Task.FromResult((Product?)returnValue));
     }
 

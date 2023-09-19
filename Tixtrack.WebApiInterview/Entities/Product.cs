@@ -5,7 +5,7 @@ namespace TixTrack.WebApiInterview.Entities;
 public record Product
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public int Id { get; set; }
+    public string Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int AvailableQuantity { get; set; }
     public double Price { get; set; }

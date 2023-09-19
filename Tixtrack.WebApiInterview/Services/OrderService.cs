@@ -7,35 +7,32 @@ namespace TixTrack.WebApiInterview.Services;
 
 public interface IOrderService
 {
-    Task<int> Create(CreateOrderDto orderDto);
+    Task<string> Create(CreateOrderDto orderDto);
     Task<IList<Order>> GetAll();
-    Task<Order?> GetById(int orderId);
-    Task Cancel(int orderId);
+    Task<Order?> GetById(string orderId);
+    Task Cancel(string orderId);
 }
 
 public class OrderServiceImpl : IOrderService
 {
     private ILogger<OrderServiceImpl> _logger { get; set; }
     private IOrderRepository _orderRepository { get; set; }
-    private IProductRepository _productRepository { get; set; }
     private ApplicationContext _db { get; set; }
     private CancelOrderUseCase _cancelOrderUseCase { get; set; }
 
     public OrderServiceImpl(
         ILogger<OrderServiceImpl> logger,
         IOrderRepository orderRepository,
-        IProductRepository productRepository,
         ApplicationContext db,
         CancelOrderUseCase cancelOrderUseCase)
     {
         _logger = logger;
         _orderRepository = orderRepository;
-        _productRepository = productRepository;
         _db = db;
         _cancelOrderUseCase = cancelOrderUseCase;
     }
     
-    public async Task<int> Create(CreateOrderDto orderDto)
+    public async Task<string> Create(CreateOrderDto orderDto)
     {
         await using var transaction = await _db.Database.BeginTransactionAsync();
         var orderId = await _processCreation(orderDto);
@@ -45,9 +42,9 @@ public class OrderServiceImpl : IOrderService
         return orderId;
     }
 
-    private async Task<int> _processCreation(CreateOrderDto orderDto)
+    private async Task<string> _processCreation(CreateOrderDto orderDto)
     {
-        var orderId = Random.Shared.Next();
+        var orderId = Ulid.NewUlid().ToString();
         await _orderRepository.Create(new Order
         {
             Id = orderId,
@@ -65,9 +62,9 @@ public class OrderServiceImpl : IOrderService
     
     public Task<IList<Order>> GetAll() => _orderRepository.FindAll();
 
-    public Task<Order?> GetById(int orderId) => _orderRepository.FindById(orderId);
+    public Task<Order?> GetById(string orderId) => _orderRepository.FindById(orderId);
 
-    public Task Cancel(int orderId) => _cancelOrderUseCase.Execute(orderId);
+    public Task Cancel(string orderId) => _cancelOrderUseCase.Execute(orderId);
 }
 
 public class CancelOrderUseCase
@@ -89,11 +86,13 @@ public class CancelOrderUseCase
         _db = db;
     }
 
+#pragma warning disable CS8618
     public CancelOrderUseCase()
     {
     }
+#pragma warning restore CS8618
 
-    public async Task Execute(int orderId)
+    public async Task Execute(string orderId)
     {
         await using var transaction = await _db.Database.BeginTransactionAsync();
         await _processCancellation(order: await _orderRepository.FindById(orderId));
@@ -123,7 +122,7 @@ public class CancelOrderUseCase
 
     private async Task _cancelOrderProducts(Order order)
     {
-        foreach (var orderProduct in order!.OrderProducts)
+        foreach (var orderProduct in order.OrderProducts)
             await _cancelOrderProduct(orderProduct);
     }
 

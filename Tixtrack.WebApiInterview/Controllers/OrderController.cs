@@ -16,7 +16,7 @@ public class OrderController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<int>> Create(CreateOrderDto orderDto)
+    public async Task<ActionResult<string>> Create(CreateOrderDto orderDto)
     {
         return new ObjectResult(await _orderService.Create(orderDto))
         {
@@ -37,7 +37,7 @@ public class OrderController : ControllerBase
     [Route("{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Order?>> ReadById(int orderId)
+    public async Task<ActionResult<Order?>> ReadById(string orderId)
     {
         var order = await _orderService.GetById(orderId);
         return order == null ? NotFound() : Ok(order);
@@ -48,7 +48,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
-    public async Task<IActionResult> Cancel(int orderId)
+    public async Task<IActionResult> Cancel(string orderId)
     {
         try
         {
