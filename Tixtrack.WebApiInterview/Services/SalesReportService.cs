@@ -5,7 +5,7 @@ using TixTrack.WebApiInterview.Repositories;
 namespace TixTrack.WebApiInterview.Services;
 
 public interface ISalesReportService {
-    Task<SalesReport> GetAllTime();
+    Task<SalesReportDto> GetAllTime();
 }
 
 public class SalesReportServiceImpl : ISalesReportService
@@ -20,10 +20,10 @@ public class SalesReportServiceImpl : ISalesReportService
         _productRepository = productRepository;
     }
 
-    public async Task<SalesReport> GetAllTime()
+    public async Task<SalesReportDto> GetAllTime()
     {
         return (await _getOrdersSales()).Aggregate(
-            seed: new SalesReport(),
+            seed: new SalesReportDto(),
             func: (salesReport, orderSales) =>
             {
                 salesReport.TotalSales += orderSales;

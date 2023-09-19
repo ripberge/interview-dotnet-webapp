@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TixTrack.WebApiInterview.Dtos;
 using TixTrack.WebApiInterview.Entities;
 using TixTrack.WebApiInterview.Exceptions;
 using TixTrack.WebApiInterview.Services;
@@ -15,9 +16,9 @@ public class OrderController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<int>> Create(Order order)
+    public async Task<ActionResult<int>> Create(CreateOrderDto orderDto)
     {
-        return new ObjectResult(await _orderService.Create(order))
+        return new ObjectResult(await _orderService.Create(orderDto))
         {
             StatusCode = StatusCodes.Status201Created
         };

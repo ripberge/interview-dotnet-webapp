@@ -1,4 +1,5 @@
-﻿using TixTrack.WebApiInterview.Entities;
+﻿using TixTrack.WebApiInterview.Dtos;
+using TixTrack.WebApiInterview.Entities;
 using TixTrack.WebApiInterview.Exceptions;
 using TixTrack.WebApiInterview.Repositories;
 
@@ -6,7 +7,7 @@ namespace TixTrack.WebApiInterview.Services;
 
 public interface IOrderService
 {
-    Task<int> Create(Order order);
+    Task<int> Create(CreateOrderDto orderDto);
     Task<IList<Order>> GetAll();
     Task<Order?> GetById(int orderId);
     Task Cancel(int orderId);
@@ -34,10 +35,31 @@ public class OrderServiceImpl : IOrderService
         _cancelOrderUseCase = cancelOrderUseCase;
     }
     
-    public async Task<int> Create(Order order)
+    public async Task<int> Create(CreateOrderDto orderDto)
     {
-        var orderId = (await _orderRepository.Create(order)).Id;
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        var orderId = await _processCreation(orderDto);
+        await transaction.CommitAsync();
+        
         _logger.LogInformation("Created order with ID {Id}.", orderId);
+        return orderId;
+    }
+
+    private async Task<int> _processCreation(CreateOrderDto orderDto)
+    {
+        var orderId = Random.Shared.Next();
+        await _orderRepository.Create(new Order
+        {
+            Id = orderId,
+            Status = OrderStatus.Active,
+            Created = DateTimeOffset.Now,
+            OrderProducts = orderDto.OrderProducts.Select(orderProduct => new OrderProduct
+            {
+                OrderId = orderId,
+                ProductId = orderProduct.ProductId,
+                Quantity = orderProduct.Quantity
+            }).ToList()
+        });
         return orderId;
     }
     

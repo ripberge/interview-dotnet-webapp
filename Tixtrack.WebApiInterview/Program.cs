@@ -51,6 +51,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+// TODO: Show health check endpoint in Swagger.
 app.MapHealthChecks("/health");
 
 app.Run();
