@@ -66,7 +66,11 @@ public class CancelOrderUseCase
         _productRepository = productRepository;
         _db = db;
     }
-    
+
+    public CancelOrderUseCase()
+    {
+    }
+
     public async Task Execute(int orderId)
     {
         await using var transaction = await _db.Database.BeginTransactionAsync();
