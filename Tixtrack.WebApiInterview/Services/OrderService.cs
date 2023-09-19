@@ -18,9 +18,45 @@ public class OrderServiceImpl : IOrderService
     private IOrderRepository _orderRepository { get; set; }
     private IProductRepository _productRepository { get; set; }
     private ApplicationContext _db { get; set; }
+    private CancelOrderUseCase _cancelOrderUseCase { get; set; }
 
     public OrderServiceImpl(
         ILogger<OrderServiceImpl> logger,
+        IOrderRepository orderRepository,
+        IProductRepository productRepository,
+        ApplicationContext db,
+        CancelOrderUseCase cancelOrderUseCase)
+    {
+        _logger = logger;
+        _orderRepository = orderRepository;
+        _productRepository = productRepository;
+        _db = db;
+        _cancelOrderUseCase = cancelOrderUseCase;
+    }
+    
+    public async Task<int> Create(Order order)
+    {
+        var orderId = (await _orderRepository.Create(order)).Id;
+        _logger.LogInformation("Created order with ID {Id}.", orderId);
+        return orderId;
+    }
+    
+    public Task<IList<Order>> GetAll() => _orderRepository.FindAll();
+
+    public Task<Order?> GetById(int orderId) => _orderRepository.FindById(orderId);
+
+    public Task Cancel(int orderId) => _cancelOrderUseCase.Execute(orderId);
+}
+
+public class CancelOrderUseCase
+{
+    private ILogger<CancelOrderUseCase> _logger { get; set; }
+    private IOrderRepository _orderRepository { get; set; }
+    private IProductRepository _productRepository { get; set; }
+    private ApplicationContext _db { get; set; }
+
+    public CancelOrderUseCase(
+        ILogger<CancelOrderUseCase> logger,
         IOrderRepository orderRepository,
         IProductRepository productRepository,
         ApplicationContext db)
@@ -31,30 +67,20 @@ public class OrderServiceImpl : IOrderService
         _db = db;
     }
     
-    public async Task<int> Create(Order order)
-    {
-        var orderId = (await _orderRepository.CreateOrder(order)).Id;
-        _logger.LogInformation("Created order with ID {Id}.", orderId);
-        return orderId;
-    }
-    
-    public Task<IList<Order>> GetAll() => _orderRepository.GetAllOrders();
-
-    public Task<Order?> GetById(int orderId) => _orderRepository.GetById(orderId);
-
-    public async Task Cancel(int orderId)
+    public async Task Execute(int orderId)
     {
         await using var transaction = await _db.Database.BeginTransactionAsync();
-
-        var order = await GetById(orderId);
-        _validateOrderCanBeCancelled(order);
-        
-        await _setOrderStatusCancelled(order!);
-        await Task.WhenAll(order!.OrderProducts.Select(_cancelOrderProduct));
-        
+        await _processCancellation(order: await _orderRepository.FindById(orderId));
         await transaction.CommitAsync();
         
         _logger.LogInformation("Cancelled order by ID {Id}.", orderId);
+    }
+
+    private async Task _processCancellation(Order? order)
+    {
+        _validateOrderCanBeCancelled(order);
+        await _setOrderStatusCancelled(order!);
+        await _cancelOrderProducts(order!);
     }
 
     private void _validateOrderCanBeCancelled(Order? order)
@@ -66,7 +92,13 @@ public class OrderServiceImpl : IOrderService
     private async Task _setOrderStatusCancelled(Order order)
     {
         order.Status = OrderStatus.Cancelled;
-        await _orderRepository.SaveOrder(order);
+        await _orderRepository.Save(order);
+    }
+
+    private async Task _cancelOrderProducts(Order order)
+    {
+        foreach (var orderProduct in order!.OrderProducts)
+            await _cancelOrderProduct(orderProduct);
     }
 
     private async Task _cancelOrderProduct(OrderProduct orderProduct)

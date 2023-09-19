@@ -15,7 +15,7 @@ builder.Services
 
 builder.Services
     .AddScoped<IProductService, ProductServiceImpl>()
-    .AddScoped<IOrderService, OrderServiceImpl>()
+    .AddScoped<IOrderService, OrderServiceImpl>().AddScoped<CancelOrderUseCase>()
     .AddScoped<ISalesReportService, SalesReportServiceImpl>();
 
 builder.Services

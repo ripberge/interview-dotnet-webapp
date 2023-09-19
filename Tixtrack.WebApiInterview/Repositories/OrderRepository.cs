@@ -5,11 +5,11 @@ namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IOrderRepository
 {
-    Task<Order> CreateOrder(Order order);
-    Task<IList<Order>> GetAllOrders();
-    Task<IList<Order>> GetActiveOrders();
-    Task<Order?> GetById(int orderId);
-    Task<Order> SaveOrder(Order order);
+    Task<Order> Create(Order order);
+    Task<IList<Order>> FindAll();
+    Task<IList<Order>> FindActive();
+    Task<Order?> FindById(int orderId);
+    Task<Order> Save(Order order);
 }
 
 public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
@@ -48,13 +48,13 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
         });
     }
 
-    public async Task<Order> CreateOrder(Order order)
+    public async Task<Order> Create(Order order)
     {
         await SaveAndDetach(entry: Db.Orders.Add(order));
         return order;
     }
     
-    public async Task<IList<Order>> GetAllOrders()
+    public async Task<IList<Order>> FindAll()
     {
         return await Db.Orders
             .Include(order => order.OrderProducts)
@@ -62,7 +62,7 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .ToListAsync();
     }
 
-    public async Task<IList<Order>> GetActiveOrders()
+    public async Task<IList<Order>> FindActive()
     {
         return await Db.Orders
             .Include(order => order.OrderProducts)
@@ -71,7 +71,7 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .ToListAsync();
     }
 
-    public Task<Order?> GetById(int orderId)
+    public Task<Order?> FindById(int orderId)
     {
         return Db.Orders
             .Include(order => order.OrderProducts)
@@ -79,7 +79,7 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .SingleOrDefaultAsync(order => order.Id == orderId);
     }
 
-    public async Task<Order> SaveOrder(Order order)
+    public async Task<Order> Save(Order order)
     {
         await SaveAndDetach(entity: order);
         return order;

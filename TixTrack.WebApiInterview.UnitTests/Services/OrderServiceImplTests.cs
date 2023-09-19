@@ -107,7 +107,8 @@ public partial class OrderServiceImplTests
             logger: new Mock<ILogger<OrderServiceImpl>>().Object,
             orderRepository: _orderRepositoryMock.Object,
             productRepository: _productRepositoryMock.Object,
-            db: db);
+            db: db,
+            cancelOrderUseCase: new Mock<CancelOrderUseCase>().Object);
 
         _mockGetAllOrders(returnValue: new List<Order>
         {
@@ -127,14 +128,14 @@ public partial class OrderServiceImplTests
     private void _mockGetAllOrders(List<Order> returnValue)
     {
         _orderRepositoryMock
-            .Setup(it => it.GetAllOrders())
+            .Setup(it => it.FindAll())
             .Returns(Task.FromResult((IList<Order>)returnValue));
     }
 
     private void _mockCreateOrder(Order returnValue)
     {
         _orderRepositoryMock
-            .Setup(it => it.CreateOrder(It.IsAny<Order>()))
+            .Setup(it => it.Create(It.IsAny<Order>()))
             .Returns(Task.FromResult(returnValue));
     }
 }

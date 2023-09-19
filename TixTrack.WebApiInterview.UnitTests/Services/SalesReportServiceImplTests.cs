@@ -153,14 +153,14 @@ public partial class SalesReportServiceImplTests
     private void _mockGetAllOrders(List<Order> returnValue)
     {
         _orderRepositoryMock
-            .Setup(it => it.GetAllOrders())
+            .Setup(it => it.FindAll())
             .Returns(Task.FromResult((IList<Order>)returnValue));
     }
     
     private void _mockGetActiveOrders(List<Order> returnValue)
     {
         _orderRepositoryMock
-            .Setup(it => it.GetActiveOrders())
+            .Setup(it => it.FindActive())
             .Returns(Task.FromResult((IList<Order>)returnValue));
     }
 }

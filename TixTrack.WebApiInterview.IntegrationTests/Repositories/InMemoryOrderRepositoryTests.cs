@@ -10,9 +10,9 @@ public partial class InMemoryOrderRepositoryTests
     public async Task ActiveOrdersDoNotContainCancelledOrders()
     {
         var expectedOrders = new List<Order> { _activeOrder, _cancelledOrder };
-        await Task.WhenAll(expectedOrders.Select(_orderRepository.CreateOrder));
+        await Task.WhenAll(expectedOrders.Select(_orderRepository.Create));
 
-        var actualActiveOrders = await _orderRepository.GetActiveOrders();
+        var actualActiveOrders = await _orderRepository.FindActive();
 
         Assert.Single(actualActiveOrders);
         Assert.Equal(expectedOrders.First(), actualActiveOrders.Single());
@@ -22,9 +22,9 @@ public partial class InMemoryOrderRepositoryTests
     public async Task AllOrdersContainActiveAndCancelledOrders()
     {
         var expectedOrders = new List<Order> { _activeOrder, _cancelledOrder };
-        await Task.WhenAll(expectedOrders.Select(_orderRepository.CreateOrder));
+        await Task.WhenAll(expectedOrders.Select(_orderRepository.Create));
         
-        var actualOrders = await _orderRepository.GetAllOrders();
+        var actualOrders = await _orderRepository.FindAll();
 
         Assert.All(expectedOrders,
             expectedOrder => Assert.Contains(expectedOrder, actualOrders));
