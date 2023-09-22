@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using TixTrack.WebApiInterview.Repositories.Context;
 
 namespace TixTrack.WebApiInterview.Repositories;
 

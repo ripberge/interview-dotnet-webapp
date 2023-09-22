@@ -2,12 +2,11 @@
 
 public record CreateOrderDto
 {
-    public IEnumerable<CreateOrderProductDto> OrderProducts { get; set; } =
-        new List<CreateOrderProductDto>(capacity: 0);
+    public List<CreateOrderProductDto> OrderProducts { get; set; } = new(capacity: 0);
 }
 
 public record CreateOrderProductDto
 {
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = string.Empty;
     public int Quantity { get; set; }
 }

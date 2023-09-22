@@ -1,5 +1,6 @@
 using TixTrack.WebApiInterview.Entities;
 using TixTrack.WebApiInterview.Repositories;
+using TixTrack.WebApiInterview.Repositories.Context;
 using Xunit;
 
 namespace TixTrack.WebApiInterview.IntegrationTests.Repositories;

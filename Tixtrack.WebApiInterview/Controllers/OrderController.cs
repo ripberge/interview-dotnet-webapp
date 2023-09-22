@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using TixTrack.WebApiInterview.Dtos;
 using TixTrack.WebApiInterview.Entities;
@@ -16,9 +17,26 @@ public class OrderController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult<string>> Create(CreateOrderDto orderDto)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<string>> Create([Required] CreateOrderDto orderDto)
     {
-        return new ObjectResult(await _orderService.Create(orderDto))
+        try
+        {
+            return _created(await _orderService.Create(orderDto));
+        }
+        catch (InvalidProductQuantityException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (InvalidProductIdException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+
+    private ObjectResult _created(object? value)
+    {
+        return new ObjectResult(value)
         {
             StatusCode = StatusCodes.Status201Created
         };
@@ -55,13 +73,13 @@ public class OrderController : ControllerBase
             await _orderService.Cancel(orderId);
             return Ok();
         }
-        catch (OrderNotFoundException)
+        catch (OrderNotFoundException e)
         {
-            return NotFound();
+            return NotFound(e.Message);
         }
-        catch (OrderIsNotActiveException)
+        catch (OrderIsNotActiveException e)
         {
-            return StatusCode(StatusCodes.Status412PreconditionFailed, "The order might have been already cancelled.");
+            return StatusCode(StatusCodes.Status412PreconditionFailed, e.Message);
         }
     }
 }

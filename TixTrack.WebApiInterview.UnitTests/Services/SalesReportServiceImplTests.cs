@@ -13,7 +13,7 @@ public partial class SalesReportServiceImplTests
     {
         var expectedProduct = _firstValidProduct with { Price = 10 };
         var expectedQuantity = 2;
-        _mockFindById(returnValue: expectedProduct);
+        _mockFindProductById(returnValue: expectedProduct);
 
         var actualSales = await _salesReportService.GetProductSales(new OrderProduct
         {
@@ -36,7 +36,7 @@ public partial class SalesReportServiceImplTests
                 new() { ProductId = expectedProduct.Id, Quantity = 2}
             }
         };
-        _mockFindById(expectedProduct);
+        _mockFindProductById(expectedProduct);
         
         var expectedSales = await _salesReportService.GetProductSales(new OrderProduct
         {
@@ -143,13 +143,13 @@ public partial class SalesReportServiceImplTests
             orderRepository: _orderRepositoryMock.Object,
             productRepository: _productRepositoryMock.Object);
 
-        _mockFindById(returnValue: _firstValidProduct);
-        _mockFindById(returnValue: _secondValidProduct);
+        _mockFindProductById(returnValue: _firstValidProduct);
+        _mockFindProductById(returnValue: _secondValidProduct);
         _mockGetAllOrders(
             returnValue: new List<Order> { _firstValidOrder, _secondValidOrder });
     }
 
-    private void _mockFindById(Product returnValue)
+    private void _mockFindProductById(Product returnValue)
     {
         _productRepositoryMock
             .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))

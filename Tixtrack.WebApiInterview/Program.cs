@@ -2,13 +2,14 @@ using System.Text.Json.Serialization;
 using Scrutor;
 using Serilog;
 using TixTrack.WebApiInterview.Repositories;
+using TixTrack.WebApiInterview.Repositories.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddDbContext<ApplicationContext>();
+builder.Services.AddDbContext<IApplicationContext, ApplicationContext>();
 
 builder.Services.Scan(scan => 
     scan.FromCallingAssembly()
