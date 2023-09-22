@@ -5,7 +5,7 @@ namespace TixTrack.WebApiInterview.Entities;
 public record Order
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public string Id { get; set; }
+    public string? Id { get; set; }
     public OrderStatus Status { get; set; }
     public DateTimeOffset Created { get; set; }
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();

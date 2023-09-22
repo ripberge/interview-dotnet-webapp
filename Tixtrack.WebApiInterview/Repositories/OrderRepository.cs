@@ -9,6 +9,10 @@ public interface IOrderRepository
     Task<Order> Create(Order order);
     Task<IList<Order>> FindAll();
     Task<IList<Order>> FindActive();
+    Task<IList<Order>> FindActiveWithCreatedDateGreaterThan(DateTimeOffset date);
+    Task<IList<Order>> FindActiveWithCreatedDateLessThan(DateTimeOffset date);
+    Task<IList<Order>> FindActiveWithCreatedDateBetweenDates(
+        DateTimeOffset oldestDate, DateTimeOffset newestDate);
     Task<Order?> FindById(string orderId);
     Task<Order> Save(Order order);
 }
@@ -97,11 +101,39 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .ToListAsync();
     }
 
-    public async Task<IList<Order>> FindActive()
+    public async Task<IList<Order>> FindActive() =>
+        await _findActive().AsNoTracking().ToListAsync();
+
+    private IQueryable<Order> _findActive()
     {
-        return await Db.Orders
+        return Db.Orders
             .Include(order => order.OrderProducts)
-            .Where(order => order.Status == OrderStatus.Active)
+            .Where(order => order.Status == OrderStatus.Active);
+    }
+
+    public async Task<IList<Order>> FindActiveWithCreatedDateGreaterThan(
+        DateTimeOffset date)
+    {
+        return await _findActive()
+            .Where(order => order.Created > date)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+    
+    public async Task<IList<Order>> FindActiveWithCreatedDateLessThan(
+        DateTimeOffset date)
+    {
+        return await _findActive()
+            .Where(order => order.Created < date)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<IList<Order>> FindActiveWithCreatedDateBetweenDates(
+        DateTimeOffset oldestDate, DateTimeOffset newestDate)
+    {
+        return await _findActive()
+            .Where(order => order.Created < newestDate && order.Created > oldestDate)
             .AsNoTracking()
             .ToListAsync();
     }

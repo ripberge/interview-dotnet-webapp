@@ -1,4 +1,5 @@
 ﻿using Moq;
+using TixTrack.WebApiInterview.Dtos;
 using TixTrack.WebApiInterview.Entities;
 using TixTrack.WebApiInterview.Repositories;
 using TixTrack.WebApiInterview.Services;
@@ -69,10 +70,10 @@ public partial class SalesReportServiceImplTests
     public async Task CancelledOrdersAreNotIncluded()
     {
         var (activeOrder, cancelledOrder) = (_firstValidOrder, _validCancelledOrder);
-        _mockGetAllOrders(returnValue: new List<Order> { activeOrder, cancelledOrder });
-        _mockGetActiveOrders(returnValue: new List<Order> { activeOrder });
+        _mockFindAllOrders(returnValue: new List<Order> { activeOrder, cancelledOrder });
+        _mockFindActiveOrders(returnValue: new List<Order> { activeOrder });
 
-        var actualSalesReport = await _salesReportService.GetAllTime();
+        var actualSalesReport = await _salesReportService.Compute(new ReadSalesReportDto());
 
         var expectedOrderCount = 1;
         var expectedOrderSales = await _salesReportService.GetOrderSales(activeOrder);
@@ -145,7 +146,7 @@ public partial class SalesReportServiceImplTests
 
         _mockFindProductById(returnValue: _firstValidProduct);
         _mockFindProductById(returnValue: _secondValidProduct);
-        _mockGetAllOrders(
+        _mockFindAllOrders(
             returnValue: new List<Order> { _firstValidOrder, _secondValidOrder });
     }
 
@@ -156,14 +157,14 @@ public partial class SalesReportServiceImplTests
             .Returns(Task.FromResult((Product?)returnValue));
     }
 
-    private void _mockGetAllOrders(List<Order> returnValue)
+    private void _mockFindAllOrders(List<Order> returnValue)
     {
         _orderRepositoryMock
             .Setup(it => it.FindAll())
             .Returns(Task.FromResult((IList<Order>)returnValue));
     }
     
-    private void _mockGetActiveOrders(List<Order> returnValue)
+    private void _mockFindActiveOrders(List<Order> returnValue)
     {
         _orderRepositoryMock
             .Setup(it => it.FindActive())

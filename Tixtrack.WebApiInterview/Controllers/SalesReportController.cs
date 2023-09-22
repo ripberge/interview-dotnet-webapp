@@ -15,6 +15,6 @@ public class SalesReportController : ControllerBase
     [HttpGet]
     [Route("Order/salesreport")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SalesReportDto>> ReadAllTime() =>
-        Ok(await _salesReportService.GetAllTime());
+    public async Task<ActionResult<SalesReportDto>> Read(ReadSalesReportDto dto) =>
+        Ok(await _salesReportService.Compute(dto));
 }

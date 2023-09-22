@@ -5,7 +5,7 @@ using TixTrack.WebApiInterview.Repositories;
 namespace TixTrack.WebApiInterview.Services;
 
 public interface ISalesReportService {
-    Task<SalesReportDto> GetAllTime();
+    Task<SalesReportDto> Compute(ReadSalesReportDto dto);
 }
 
 public class SalesReportServiceImpl : ISalesReportService
@@ -20,9 +20,9 @@ public class SalesReportServiceImpl : ISalesReportService
         _productRepository = productRepository;
     }
 
-    public async Task<SalesReportDto> GetAllTime()
+    public async Task<SalesReportDto> Compute(ReadSalesReportDto dto)
     {
-        return (await _getOrdersSales()).Aggregate(
+        return (await _getOrdersSales(dto)).Aggregate(
             seed: new SalesReportDto(),
             func: (salesReport, orderSales) =>
             {
@@ -32,9 +32,15 @@ public class SalesReportServiceImpl : ISalesReportService
             });
     }
 
-    private async Task<double[]> _getOrdersSales()
+    private async Task<double[]> _getOrdersSales(ReadSalesReportDto dto)
     {
-        var orders = await _orderRepository.FindActive();
+        var orders = await (dto switch
+        {
+            ({ } oldestDate, { } newestDate) => _orderRepository.FindActiveWithCreatedDateBetweenDates(oldestDate, newestDate),
+            ({ } oldestDate, null) => _orderRepository.FindActiveWithCreatedDateGreaterThan(oldestDate),
+            (null, { } newestDate) => _orderRepository.FindActiveWithCreatedDateLessThan(newestDate),
+            _ => _orderRepository.FindActive()
+        });
         return await Task.WhenAll(orders.Select(GetOrderSales));
     }
 
@@ -43,7 +49,7 @@ public class SalesReportServiceImpl : ISalesReportService
 
     public async Task<double> GetProductSales(OrderProduct orderProduct)
     {
-        var product = await _productRepository.FindById(orderProduct.ProductId);
+        var product = await _productRepository.FindById(orderProduct.ProductId!);
         return product!.Price * orderProduct.Quantity;
     }
 }

@@ -89,7 +89,7 @@ public class CreateOrderUseCase
                 Quantity = orderProduct.Quantity
             }).ToList()
         });
-        return order.Id;
+        return order.Id!;
     }
 
     private async Task _validateCanCreateOrder(CreateOrderDto orderDto)
@@ -181,7 +181,7 @@ public class CancelOrderUseCase
 
     private async Task _cancelOrderProduct(OrderProduct orderProduct)
     {
-        var product = await _productRepository.FindById(orderProduct.ProductId);
+        var product = await _productRepository.FindById(orderProduct.ProductId!);
         product!.AvailableQuantity += orderProduct.Quantity;
         await _productRepository.Save(product);
     }

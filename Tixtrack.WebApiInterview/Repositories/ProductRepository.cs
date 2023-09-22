@@ -51,7 +51,7 @@ public class InMemoryProductRepository : InMemoryRepository, IProductRepository
     public async Task<string> Insert(Product product)
     {
         await SaveAndDetach(entry: Db.Products.Add(product));
-        return product.Id;
+        return product.Id!;
     }
     
     public Task<Product?> FindById(string id) =>
