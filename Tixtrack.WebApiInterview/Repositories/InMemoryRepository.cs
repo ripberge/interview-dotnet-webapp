@@ -8,7 +8,7 @@ public abstract class InMemoryRepository
 {
     protected ApplicationContext Db { get; set; }
 
-    public InMemoryRepository(ApplicationContext db) => Db = db;
+    protected InMemoryRepository(ApplicationContext db) => Db = db;
 
     public virtual void Seed()
     {

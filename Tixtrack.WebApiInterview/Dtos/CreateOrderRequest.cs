@@ -1,6 +1,6 @@
 ﻿namespace TixTrack.WebApiInterview.Dtos;
 
-public record CreateOrderDto
+public record CreateOrderRequest
 {
     public List<CreateOrderProductDto> OrderProducts { get; set; } = new(capacity: 0);
 }

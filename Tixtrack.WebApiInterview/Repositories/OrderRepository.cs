@@ -6,7 +6,7 @@ namespace TixTrack.WebApiInterview.Repositories;
 
 public interface IOrderRepository
 {
-    Task<Order> Create(Order order);
+    Task<Order> Insert(Order order);
     Task<IList<Order>> FindAll();
     Task<IList<Order>> FindActive();
     Task<IList<Order>> FindActiveWithCreatedDateGreaterThan(DateTimeOffset date);
@@ -14,6 +14,7 @@ public interface IOrderRepository
     Task<IList<Order>> FindActiveWithCreatedDateBetweenDates(
         DateTimeOffset oldestDate, DateTimeOffset newestDate);
     Task<Order?> FindById(string orderId);
+    Task<IList<OrderProduct>> FindTopOrderProductsByQuantity(int count);
     Task<Order> Save(Order order);
 }
 
@@ -87,7 +88,7 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
         });
     }
 
-    public async Task<Order> Create(Order order)
+    public async Task<Order> Insert(Order order)
     {
         await SaveAndDetach(entry: Db.Orders.Add(order));
         return order;
@@ -144,6 +145,16 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
             .Include(order => order.OrderProducts)
             .AsNoTracking()
             .SingleOrDefaultAsync(order => order.Id == orderId);
+    }
+    
+    public async Task<IList<OrderProduct>> FindTopOrderProductsByQuantity(int count)
+    {
+        return await _findActive()
+            .SelectMany(order => order.OrderProducts)
+            .OrderByDescending(orderProduct => orderProduct.Quantity)
+            .Take(count)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<Order> Save(Order order)

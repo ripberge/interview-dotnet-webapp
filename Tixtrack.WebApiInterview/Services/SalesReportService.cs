@@ -5,7 +5,8 @@ using TixTrack.WebApiInterview.Repositories;
 namespace TixTrack.WebApiInterview.Services;
 
 public interface ISalesReportService {
-    Task<SalesReportDto> Compute(ReadSalesReportDto dto);
+    Task<ReadSalesReportResponse> Compute(ReadSalesReportRequest request);
+    Task<IList<ReadTopProductResponse>> GetTopTenProducts();
 }
 
 public class SalesReportServiceImpl : ISalesReportService
@@ -20,10 +21,10 @@ public class SalesReportServiceImpl : ISalesReportService
         _productRepository = productRepository;
     }
 
-    public async Task<SalesReportDto> Compute(ReadSalesReportDto dto)
+    public async Task<ReadSalesReportResponse> Compute(ReadSalesReportRequest request)
     {
-        return (await _getOrdersSales(dto)).Aggregate(
-            seed: new SalesReportDto(),
+        return (await _getOrdersSales(request)).Aggregate(
+            seed: new ReadSalesReportResponse(),
             func: (salesReport, orderSales) =>
             {
                 salesReport.TotalSales += orderSales;
@@ -32,9 +33,9 @@ public class SalesReportServiceImpl : ISalesReportService
             });
     }
 
-    private async Task<double[]> _getOrdersSales(ReadSalesReportDto dto)
+    private async Task<double[]> _getOrdersSales(ReadSalesReportRequest request)
     {
-        var orders = await (dto switch
+        var orders = await (request switch
         {
             ({ } oldestDate, { } newestDate) => _orderRepository.FindActiveWithCreatedDateBetweenDates(oldestDate, newestDate),
             ({ } oldestDate, null) => _orderRepository.FindActiveWithCreatedDateGreaterThan(oldestDate),
@@ -51,5 +52,18 @@ public class SalesReportServiceImpl : ISalesReportService
     {
         var product = await _productRepository.FindById(orderProduct.ProductId!);
         return product!.Price * orderProduct.Quantity;
+    }
+
+    public async Task<IList<ReadTopProductResponse>> GetTopTenProducts()
+    {
+        var topProducts = await _orderRepository.FindTopOrderProductsByQuantity(count: 10);
+        return (await Task.WhenAll(topProducts.Select(_getOrderProductDetails))).ToList();
+    }
+
+    private async Task<ReadTopProductResponse> _getOrderProductDetails(
+        OrderProduct orderProduct)
+    {
+        var product = await _productRepository.FindById(orderProduct.ProductId!);
+        return new ReadTopProductResponse(product!.Name, orderProduct.Quantity);
     }
 }

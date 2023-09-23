@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Scrutor;
 using Serilog;
 using TixTrack.WebApiInterview.Repositories;
 using TixTrack.WebApiInterview.Repositories.Context;
@@ -13,9 +12,8 @@ builder.Services.AddDbContext<IApplicationContext, ApplicationContext>();
 
 builder.Services.Scan(scan => 
     scan.FromCallingAssembly()
-        .AddClasses(classes => classes.Where(type => type.Name.StartsWith("InMemory")
-                                                     && type.Name.EndsWith("Repository")))
-            .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+        .AddClasses(classes => classes.Where(type =>
+                type.Name.StartsWith("InMemory") && type.Name.EndsWith("Repository")))
             .As(type => type.GetInterfaces().Append(typeof(InMemoryRepository)))
             .WithScopedLifetime()
         .AddClasses(classes => classes.Where(type => type.Name.EndsWith("UseCase")))

@@ -8,7 +8,7 @@ namespace TixTrack.WebApiInterview.Services;
 
 public interface IOrderService
 {
-    Task<string> Create(CreateOrderDto orderDto);
+    Task<string> Create(CreateOrderRequest orderRequest);
     Task<IList<Order>> GetAll();
     Task<Order?> GetById(string orderId);
     Task Cancel(string orderId);
@@ -30,8 +30,8 @@ public class OrderServiceImpl : IOrderService
         _cancelOrderUseCase = cancelOrderUseCase;
     }
 
-    public Task<string> Create(CreateOrderDto orderDto) =>
-        _createOrderUseCase.Execute(orderDto);
+    public Task<string> Create(CreateOrderRequest orderRequest) =>
+        _createOrderUseCase.Execute(orderRequest);
     
     public Task<IList<Order>> GetAll() => _orderRepository.FindAll();
 
@@ -65,25 +65,25 @@ public class CreateOrderUseCase
     }
 #pragma warning restore CS8618
     
-    public async Task<string> Execute(CreateOrderDto orderDto)
+    public async Task<string> Execute(CreateOrderRequest orderRequest)
     {
         return await _db.UseTransaction(async (commit, rollback) =>
         {
-            var orderId = await _processCreation(orderDto);
+            var orderId = await _processCreation(orderRequest);
             await commit();
             _logger.LogInformation("Created order with ID {Id}.", orderId);
             return orderId;
         });
     }
 
-    private async Task<string> _processCreation(CreateOrderDto orderDto)
+    private async Task<string> _processCreation(CreateOrderRequest orderRequest)
     {
-        await _validateCanCreateOrder(orderDto);
-        var order = await _orderRepository.Create(new Order
+        await _validateCanCreateOrder(orderRequest);
+        var order = await _orderRepository.Insert(new Order
         {
             Status = OrderStatus.Active,
             Created = DateTimeOffset.Now,
-            OrderProducts = orderDto.OrderProducts.Select(orderProduct => new OrderProduct
+            OrderProducts = orderRequest.OrderProducts.Select(orderProduct => new OrderProduct
             {
                 ProductId = orderProduct.ProductId,
                 Quantity = orderProduct.Quantity
@@ -92,10 +92,10 @@ public class CreateOrderUseCase
         return order.Id!;
     }
 
-    private async Task _validateCanCreateOrder(CreateOrderDto orderDto)
+    private async Task _validateCanCreateOrder(CreateOrderRequest orderRequest)
     {
-        _validateOrderHasProducts(orderDto.OrderProducts);
-        await _validateProductsExist(orderDto.OrderProducts);
+        _validateOrderHasProducts(orderRequest.OrderProducts);
+        await _validateProductsExist(orderRequest.OrderProducts);
     }
 
     private void _validateOrderHasProducts(List<CreateOrderProductDto> productsDto)

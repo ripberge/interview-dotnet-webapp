@@ -73,12 +73,35 @@ public partial class SalesReportServiceImplTests
         _mockFindAllOrders(returnValue: new List<Order> { activeOrder, cancelledOrder });
         _mockFindActiveOrders(returnValue: new List<Order> { activeOrder });
 
-        var actualSalesReport = await _salesReportService.Compute(new ReadSalesReportDto());
+        var actualSalesReport = await _salesReportService.Compute(new ReadSalesReportRequest());
 
         var expectedOrderCount = 1;
         var expectedOrderSales = await _salesReportService.GetOrderSales(activeOrder);
         Assert.Equal(expectedOrderCount, actualSalesReport.OrderCount);
         Assert.Equal(expectedOrderSales, actualSalesReport.TotalSales);
+    }
+
+    [Fact]
+    public async Task ExceptionIsNotThrownWhenLessThanTenProductsExist()
+    {
+        _mockFindTopOrderProductsByQuantity(returnValue: new List<OrderProduct>());
+        
+        var actualProducts = await _salesReportService.GetTopTenProducts();
+        
+        Assert.Empty(actualProducts);
+    }
+
+    [Fact]
+    public async Task TopProductIsMappedFromOrderProduct()
+    {
+        var expectedProduct = _firstValidProduct;
+        var expectedOrderProduct = _firstValidOrder.OrderProducts.First();
+
+        var actualProduct =
+            (await _salesReportService.GetTopTenProducts()).FirstOrDefault();
+        
+        Assert.Equal(expectedProduct.Name, actualProduct?.Name);
+        Assert.Equal(expectedOrderProduct.Quantity, actualProduct?.Quantity);
     }
 }
 
@@ -148,26 +171,30 @@ public partial class SalesReportServiceImplTests
         _mockFindProductById(returnValue: _secondValidProduct);
         _mockFindAllOrders(
             returnValue: new List<Order> { _firstValidOrder, _secondValidOrder });
+        _mockFindTopOrderProductsByQuantity(
+            returnValue: _firstValidOrder.OrderProducts.First());
     }
 
     private void _mockFindProductById(Product returnValue)
     {
         _productRepositoryMock
             .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))
-            .Returns(Task.FromResult((Product?)returnValue));
+            .ReturnsAsync(returnValue);
     }
 
-    private void _mockFindAllOrders(List<Order> returnValue)
-    {
-        _orderRepositoryMock
-            .Setup(it => it.FindAll())
-            .Returns(Task.FromResult((IList<Order>)returnValue));
-    }
+    private void _mockFindAllOrders(List<Order> returnValue) =>
+        _orderRepositoryMock.Setup(it => it.FindAll()).ReturnsAsync(returnValue);
     
-    private void _mockFindActiveOrders(List<Order> returnValue)
+    private void _mockFindActiveOrders(List<Order> returnValue) =>
+        _orderRepositoryMock.Setup(it => it.FindActive()).ReturnsAsync(returnValue);
+
+    private void _mockFindTopOrderProductsByQuantity(OrderProduct returnValue) =>
+        _mockFindTopOrderProductsByQuantity(new List<OrderProduct> { returnValue });
+    
+    private void _mockFindTopOrderProductsByQuantity(List<OrderProduct> returnValue)
     {
         _orderRepositoryMock
-            .Setup(it => it.FindActive())
-            .Returns(Task.FromResult((IList<Order>)returnValue));
+            .Setup(it => it.FindTopOrderProductsByQuantity(It.IsAny<int>()))
+            .ReturnsAsync(returnValue);
     }
 }

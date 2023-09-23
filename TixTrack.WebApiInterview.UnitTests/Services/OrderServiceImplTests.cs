@@ -19,8 +19,8 @@ public partial class CancelOrderUseCaseTests
 
         async Task CancelOrderTwice()
         {
-            await _cancelOrderUseCase.Execute(expectedOrder.Id);
-            await _cancelOrderUseCase.Execute(expectedOrder.Id);
+            await _cancelOrderUseCase.Execute(expectedOrder.Id!);
+            await _cancelOrderUseCase.Execute(expectedOrder.Id!);
         }
 
         await Assert.ThrowsAsync<OrderIsNotActiveException>(CancelOrderTwice);
@@ -32,7 +32,7 @@ public partial class CancelOrderUseCaseTests
         var expectedOrder = _validOrder;
         _mockFindOrderById(returnValue: expectedOrder);
         
-        await _cancelOrderUseCase.Execute(expectedOrder.Id);
+        await _cancelOrderUseCase.Execute(expectedOrder.Id!);
 
         var expectedOrderStatus = OrderStatus.Cancelled;
         Assert.Equal(expectedOrderStatus, expectedOrder.Status);
@@ -97,7 +97,7 @@ public partial class CreateOrderUseCaseTests
     [Fact]
     public async Task OrderProductsMustNotBeEmpty()
     {
-        var emptyOrder = new CreateOrderDto();
+        var emptyOrder = new CreateOrderRequest();
 
         Task CreateEmptyOrder() => _createOrderUseCase.Execute(emptyOrder);
 
@@ -164,7 +164,7 @@ public partial class CreateOrderUseCaseTests
             .Returns(Task.FromResult((Product?)returnValue));
     }
     
-    private CreateOrderDto _getValidOrderWithCustomProductQuantity(int productQuantity)
+    private CreateOrderRequest _getValidOrderWithCustomProductQuantity(int productQuantity)
     {
         return _getValidOrderWithCustomProduct(new CreateOrderProductDto()
         {
@@ -173,7 +173,7 @@ public partial class CreateOrderUseCaseTests
         });
     }
     
-    private CreateOrderDto _getValidOrderWithCustomProductId(string productId)
+    private CreateOrderRequest _getValidOrderWithCustomProductId(string productId)
     {
         return _getValidOrderWithCustomProduct(new CreateOrderProductDto
         {
@@ -182,9 +182,9 @@ public partial class CreateOrderUseCaseTests
         });
     }
     
-    private CreateOrderDto _getValidOrderWithCustomProduct(CreateOrderProductDto product)
+    private CreateOrderRequest _getValidOrderWithCustomProduct(CreateOrderProductDto product)
     {
-        return new CreateOrderDto
+        return new CreateOrderRequest
         {
             OrderProducts = new List<CreateOrderProductDto> { product }
         };

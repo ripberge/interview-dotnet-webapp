@@ -18,11 +18,12 @@ public class OrderController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<string>> Create([Required] CreateOrderDto orderDto)
+    public async Task<ActionResult<string>> Create(
+        [Required] CreateOrderRequest orderRequest)
     {
         try
         {
-            return _created(await _orderService.Create(orderDto));
+            return _created(await _orderService.Create(orderRequest));
         }
         catch (InvalidProductQuantityException e)
         {
@@ -42,6 +43,7 @@ public class OrderController : ControllerBase
         };
     }
 
+    // TODO: Add sorting and pagination.
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

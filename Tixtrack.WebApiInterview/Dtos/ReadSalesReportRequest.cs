@@ -1,6 +1,6 @@
 ﻿namespace TixTrack.WebApiInterview.Dtos;
 
-public record ReadSalesReportDto
+public record ReadSalesReportRequest
 {
     public DateTimeOffset? OldestDate;
     public DateTimeOffset? NewestDate;

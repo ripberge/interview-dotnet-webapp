@@ -15,6 +15,15 @@ public class SalesReportController : ControllerBase
     [HttpGet]
     [Route("Order/salesreport")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<SalesReportDto>> Read(ReadSalesReportDto dto) =>
-        Ok(await _salesReportService.Compute(dto));
+    public async Task<ActionResult<ReadSalesReportResponse>> Read(
+        [FromQuery] ReadSalesReportRequest request)
+    {
+        return Ok(await _salesReportService.Compute(request));
+    }
+
+    [HttpGet]
+    [Route("Order/salesreport/topproducts")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IList<ReadTopProductResponse>>> ReadTopProducts() =>
+        Ok(await _salesReportService.GetTopTenProducts());
 }
