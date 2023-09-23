@@ -5,6 +5,7 @@ using TixTrack.WebApiInterview.Repositories;
 namespace TixTrack.WebApiInterview.Controllers;
 
 [ApiController]
+[Route("v1/[controller]")]
 public class ProductController : ControllerBase
 {
     private IProductRepository _productRepository { get; set; }
@@ -13,7 +14,7 @@ public class ProductController : ControllerBase
         _productRepository = productRepository;
 
     [HttpGet]
-    [Route("product/{productId}")]
+    [Route("{productId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Product>> ReadById(string productId)

@@ -12,17 +12,20 @@ builder.Services.AddDbContext<IApplicationContext, ApplicationContext>();
 
 builder.Services.Scan(scan => 
     scan.FromCallingAssembly()
-        .AddClasses(classes => classes.Where(type =>
-                type.Name.StartsWith("InMemory") && type.Name.EndsWith("Repository")))
+        .AddClasses(classes => classes.Where(IsRepository))
             .As(type => type.GetInterfaces().Append(typeof(InMemoryRepository)))
             .WithScopedLifetime()
-        .AddClasses(classes => classes.Where(type => type.Name.EndsWith("UseCase")))
+        .AddClasses(classes => classes.Where(IsUseCase))
             .AsSelf()
             .WithScopedLifetime()
-        .AddClasses(classes => classes.Where(type => type.Name.EndsWith("ServiceImpl")))
+        .AddClasses(classes => classes.Where(IsService))
             .AsImplementedInterfaces()
             .WithScopedLifetime()
 );
+
+bool IsRepository(Type type) => type.IsSubclassOf(typeof(InMemoryRepository));
+bool IsUseCase(Type type) => type.Name.EndsWith("UseCase");
+bool IsService(Type type) => type.Name.EndsWith("ServiceImpl");
 
 builder.Services
     .AddControllers()

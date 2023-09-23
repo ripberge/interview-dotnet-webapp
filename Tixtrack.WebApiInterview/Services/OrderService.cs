@@ -98,7 +98,7 @@ public class CreateOrderUseCase
         await _validateProductsExist(orderRequest.OrderProducts);
     }
 
-    private void _validateOrderHasProducts(List<CreateOrderProductDto> productsDto)
+    private void _validateOrderHasProducts(List<OrderProductDto> productsDto)
     {
         if (!productsDto.Any())
             throw new InvalidProductQuantityException(message: "Order must have at least a single product.");
@@ -106,7 +106,7 @@ public class CreateOrderUseCase
             throw new InvalidProductQuantityException(message: "Each order product must have a positive quantity.");
     }
 
-    private async Task _validateProductsExist(List<CreateOrderProductDto> productsDto)
+    private async Task _validateProductsExist(List<OrderProductDto> productsDto)
     {
         var products = await Task.WhenAll(productsDto
             .Select(productDto => productDto.ProductId)

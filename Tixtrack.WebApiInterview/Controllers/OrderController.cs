@@ -8,14 +8,14 @@ using TixTrack.WebApiInterview.Services;
 namespace TixTrack.WebApiInterview.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v1")]
 public class OrderController : ControllerBase
 {
     private IOrderService _orderService { get; set; }
     
     public OrderController(IOrderService orderService) => _orderService = orderService;
 
-    [HttpPost]
+    [HttpPost("Order")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<string>> Create(
@@ -44,7 +44,7 @@ public class OrderController : ControllerBase
     }
 
     // TODO: Add sorting and pagination.
-    [HttpGet]
+    [HttpGet("Orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult<IList<Order>>> ReadAll()
@@ -54,7 +54,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    [Route("{orderId}")]
+    [Route("Order/{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Order?>> ReadById(string orderId)
@@ -64,7 +64,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("{orderId}")]
+    [Route("Order/{orderId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]

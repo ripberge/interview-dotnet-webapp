@@ -5,6 +5,7 @@ using TixTrack.WebApiInterview.Services;
 namespace TixTrack.WebApiInterview.Controllers;
 
 [ApiController]
+[Route("v1/[controller]")]
 public class SalesReportController : ControllerBase
 {
     private ISalesReportService _salesReportService { get; set; }
@@ -13,7 +14,6 @@ public class SalesReportController : ControllerBase
         _salesReportService = salesReportService;
 
     [HttpGet]
-    [Route("Order/salesreport")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<ReadSalesReportResponse>> Read(
         [FromQuery] ReadSalesReportRequest request)
@@ -22,7 +22,7 @@ public class SalesReportController : ControllerBase
     }
 
     [HttpGet]
-    [Route("Order/salesreport/topproducts")]
+    [Route("TopProducts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IList<ReadTopProductResponse>>> ReadTopProducts() =>
         Ok(await _salesReportService.GetTopTenProducts());

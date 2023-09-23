@@ -166,7 +166,7 @@ public partial class CreateOrderUseCaseTests
     
     private CreateOrderRequest _getValidOrderWithCustomProductQuantity(int productQuantity)
     {
-        return _getValidOrderWithCustomProduct(new CreateOrderProductDto()
+        return _getValidOrderWithCustomProduct(new OrderProductDto
         {
             ProductId = _getNewProductId(),
             Quantity = productQuantity
@@ -175,18 +175,18 @@ public partial class CreateOrderUseCaseTests
     
     private CreateOrderRequest _getValidOrderWithCustomProductId(string productId)
     {
-        return _getValidOrderWithCustomProduct(new CreateOrderProductDto
+        return _getValidOrderWithCustomProduct(new OrderProductDto
         {
             ProductId = productId,
             Quantity = 1
         });
     }
     
-    private CreateOrderRequest _getValidOrderWithCustomProduct(CreateOrderProductDto product)
+    private CreateOrderRequest _getValidOrderWithCustomProduct(OrderProductDto product)
     {
         return new CreateOrderRequest
         {
-            OrderProducts = new List<CreateOrderProductDto> { product }
+            OrderProducts = new List<OrderProductDto> { product }
         };
     }
 
