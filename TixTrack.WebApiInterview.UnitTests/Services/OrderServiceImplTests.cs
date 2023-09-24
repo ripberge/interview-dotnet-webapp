@@ -81,14 +81,14 @@ public partial class CancelOrderUseCaseTests
     {
         _productRepositoryMock
             .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))
-            .Returns(Task.FromResult((Product?)returnValue));
+            .ReturnsAsync(returnValue);
     }
     
     private void _mockFindOrderById(Order returnValue)
     {
         _orderRepositoryMock
             .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))
-            .Returns(Task.FromResult((Order?)returnValue));
+            .ReturnsAsync(returnValue);
     }
 }
 
@@ -138,10 +138,35 @@ public partial class CreateOrderUseCaseTests
         await Assert.ThrowsAsync<InvalidProductIdException>(
             CreateOrderWithInvalidProductId);
     }
+
+    [Fact]
+    public async Task OrderWithUnavailableProductsIsNotProcessed()
+    {
+        var expectedProduct = _unavailableProduct;
+        _mockFindProductById(returnValue: expectedProduct);
+
+        Task CreateOrderWithUnavailableProduct()
+        {
+            return _createOrderUseCase.Execute(
+                _getValidOrderWithCustomProductId(expectedProduct.Id!));
+        }
+
+        await Assert.ThrowsAsync<UnavailableProductQuantityException>(
+            CreateOrderWithUnavailableProduct);
+    }
 }
 
 public partial class CreateOrderUseCaseTests
 {
+    private Product _unavailableProduct => new()
+    {
+        Id = "01HB4823GDN0VNKH8PQ8JDTDQS",
+        Name = "Wireless Keyboard",
+        AvailableQuantity = 0,
+        Price = 20.00,
+        Type = "Electronics",
+    };
+    
     private Mock<IOrderRepository> _orderRepositoryMock { get; set; }
     private Mock<IProductRepository> _productRepositoryMock { get; set; }
     private CreateOrderUseCase _createOrderUseCase { get; set; }
@@ -161,7 +186,7 @@ public partial class CreateOrderUseCaseTests
     {
         _productRepositoryMock
             .Setup(it => it.FindById(It.Is<string>(id => id == returnValue.Id)))
-            .Returns(Task.FromResult((Product?)returnValue));
+            .ReturnsAsync(returnValue);
     }
     
     private CreateOrderRequest _getValidOrderWithCustomProductQuantity(int productQuantity)

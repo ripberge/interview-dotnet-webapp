@@ -52,6 +52,14 @@ public class InMemoryProductRepository : InMemoryRepository, IProductRepository
                 AvailableQuantity = 200,
                 Price = 14.99,
                 Type = "Sustainable Goods",
+            },
+            new()
+            {
+                Id = "01HB4823GDN0VNKH8PQ8JDTDQS",
+                Name = "Wireless Keyboard",
+                AvailableQuantity = 0,
+                Price = 20.00,
+                Type = "Electronics",
             }
         });
     }

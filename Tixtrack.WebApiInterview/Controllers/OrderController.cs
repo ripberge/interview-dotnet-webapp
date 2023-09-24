@@ -25,13 +25,14 @@ public class OrderController : ControllerBase
         {
             return _created(await _orderService.Create(orderRequest));
         }
-        catch (InvalidProductQuantityException e)
-        {
-            return BadRequest(e.Message);
-        }
         catch (InvalidProductIdException e)
         {
             return NotFound(e.Message);
+        }
+        catch (ProductException e) when (e is InvalidProductQuantityException
+                                             or UnavailableProductQuantityException)
+        {
+            return BadRequest(e.Message);
         }
     }
 

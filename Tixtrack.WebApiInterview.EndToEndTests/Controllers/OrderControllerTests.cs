@@ -29,6 +29,16 @@ public partial class OrderControllerTests
         
         Assert.Equal(HttpStatusCode.BadRequest, response.Status());
     }
+
+    [Fact]
+    public async Task PostOrderWithUnavailableProduct_ResponseStatusIsBadRequest()
+    {
+        var response = await BaseUrl
+            .AppendPathSegment("v1/order")
+            .PostJsonAsync(_createRequestWithUnavailableProduct);
+        
+        Assert.Equal(HttpStatusCode.BadRequest, response.Status());
+    }
     
     [Fact]
     public async Task PostOrderWithNonExistingProductId_ResponseStatusIsNotFound()
@@ -133,9 +143,13 @@ public partial class OrderControllerTests : ControllerTestBase
     private string _unknownOrderId => "01HB1VAFM774CBPJFZETS38N9D";
     private string _existingProductId => "01HAP05RW9A0V5Z8NZ57A73JMY";
     private string _unknownProductId => "01HB1VAFM774CBPJFZETS38N9D";
+    private string _unavailableProductId => "01HB4823GDN0VNKH8PQ8JDTDQS";
     
     private CreateOrderRequest _createRequestWithInvalidProductQuantity =>
         _getCreateRequest(productId: _existingProductId, quantity: -1);
+    
+    private CreateOrderRequest _createRequestWithUnavailableProduct =>
+        _getCreateRequest(productId: _unavailableProductId, quantity: 1);
 
     private CreateOrderRequest _validCreateRequest =>
         _getCreateRequest(productId: _existingProductId, quantity: 1);
