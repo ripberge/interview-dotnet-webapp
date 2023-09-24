@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TixTrack.WebApiInterview.Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TixTrack.WebApiInterview.IntegrationTests", "TixTrack.WebApiInterview.IntegrationTests\TixTrack.WebApiInterview.IntegrationTests.csproj", "{EDEC35A0-C3AF-418C-A17D-09F3BD6D5500}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tixtrack.WebApiInterview.EndToEndTests", "Tixtrack.WebApiInterview.EndToEndTests\Tixtrack.WebApiInterview.EndToEndTests.csproj", "{96BEB945-EB1E-45F2-9AAA-A61A31DD832F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{EDEC35A0-C3AF-418C-A17D-09F3BD6D5500}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDEC35A0-C3AF-418C-A17D-09F3BD6D5500}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDEC35A0-C3AF-418C-A17D-09F3BD6D5500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96BEB945-EB1E-45F2-9AAA-A61A31DD832F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96BEB945-EB1E-45F2-9AAA-A61A31DD832F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96BEB945-EB1E-45F2-9AAA-A61A31DD832F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96BEB945-EB1E-45F2-9AAA-A61A31DD832F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -44,6 +44,14 @@ public class InMemoryProductRepository : InMemoryRepository, IProductRepository
                 AvailableQuantity = 5000,
                 Price = 0.99,
                 Type = "Souvenir",
+            },
+            new()
+            {
+                Id = "01HB2RY5N2DBZWZEDMDQEPXPJ1",
+                Name = "Eco-Friendly Water Bottle",
+                AvailableQuantity = 200,
+                Price = 14.99,
+                Type = "Sustainable Goods",
             }
         });
     }

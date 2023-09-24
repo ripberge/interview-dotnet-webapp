@@ -83,10 +83,10 @@ public class CreateOrderUseCase
         {
             Status = OrderStatus.Active,
             Created = DateTimeOffset.Now,
-            OrderProducts = orderRequest.OrderProducts.Select(orderProduct => new OrderProduct
+            OrderProducts = orderRequest.OrderProducts.Select(dto => new OrderProduct
             {
-                ProductId = orderProduct.ProductId,
-                Quantity = orderProduct.Quantity
+                ProductId = dto.ProductId,
+                Quantity = dto.Quantity
             }).ToList()
         });
         return order.Id!;
@@ -111,8 +111,8 @@ public class CreateOrderUseCase
         var products = await Task.WhenAll(productsDto
             .Select(productDto => productDto.ProductId)
             .Select(async id => (Id: id, Product: await _productRepository.FindById(id))));
-        
-        if (products.First(pair => pair.Product == null) is (string unknownId, null))
+        var firstInvalidProduct = products.FirstOrDefault(pair => pair.Product == null);
+        if (firstInvalidProduct is (string unknownId, null))
             throw new InvalidProductIdException($"Could not find existing product by ID {unknownId}.");
     }
 }

@@ -50,6 +50,12 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
                 Id = "01HAP037A2J4JYFV01S3X8N2SA",
                 Status = OrderStatus.Active,
                 Created = Date(2023, 01, 03)
+            },
+            new()
+            {
+                Id = "01HB2PKJ5N95FF8GN2TY5CA4TT",
+                Status = OrderStatus.Cancelled,
+                Created = Date(2023, 01, 04)
             }
         });
 
@@ -84,6 +90,12 @@ public class InMemoryOrderRepository : InMemoryRepository, IOrderRepository
                 OrderId = "01HAP037A2J4JYFV01S3X8N2SA",
                 ProductId = "01HAP09BED95ST5G88HTCC9G9Q",
                 Quantity = 2
+            },
+            new()
+            {
+                OrderId = "01HB2PKJ5N95FF8GN2TY5CA4TT",
+                ProductId = "01HAP09BED95ST5G88HTCC9G9Q",
+                Quantity = 1
             }
         });
     }
